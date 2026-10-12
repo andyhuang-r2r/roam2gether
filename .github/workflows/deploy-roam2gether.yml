@@ -1,0 +1,57 @@
+name: Deploy roam2gether
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - index.html
+      - css/**
+      - js/**
+      - .github/workflows/deploy-roam2gether.yml
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    paths:
+      - index.html
+      - css/**
+      - js/**
+      - .github/workflows/deploy-roam2gether.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  # Pull requests get their own preview URL so they never overwrite the main site.
+  SITE_NAME: ${{ github.event_name == 'pull_request' && 'roam2gether-preview' || 'roam2gether' }}
+
+jobs:
+  deploy:
+    environment:
+      name: ${{ github.event_name == 'pull_request' && 'roam2gether-preview' || 'roam2gether' }}
+      url: https://sites.prod-like.rome2rio.tech/data-ops-prototypes/${{ github.event_name == 'pull_request' && 'roam2gether-preview' || 'roam2gether' }}/index.html
+    runs-on: xs-prod-like
+    steps:
+      - uses: actions/checkout@v6
+
+      # roam2gether is plain HTML/CSS/ES modules, so there is nothing to compile.
+      # "Build" just gathers the files the site needs into dist/.
+      - name: Assemble site
+        run: |
+          mkdir -p dist
+          cp index.html dist/
+          cp -r css js dist/
+
+      - id: deploy
+        uses: rome2rio/actions-sites@v1
+        with:
+          service-account: sites-data-ops-prototypes@rome2rio-dev.iam.gserviceaccount.com
+          workload-identity-pool: ${{ vars.GCP_WORKLOAD_IDENTITY_POOL }}
+          repository: data-ops-prototypes
+          bucket-subpath: ${{ env.SITE_NAME }}
+          clean-bucket-subpath: true
+          path: dist
