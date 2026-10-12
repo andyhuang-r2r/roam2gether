@@ -1,0 +1,291 @@
+/* modal & drawer */
+#modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+}
+#modal.open {
+  display: block;
+}
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(31, 30, 30, 0.55);
+  animation: fade 0.25s both;
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+.sheet {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, calc(100% - 28px));
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  background: #fff;
+  border-radius: 28px;
+  padding: 26px;
+  animation: sheetin 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes sheetin {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.96);
+  }
+}
+.sheet h2 {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+.sheet .close {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--card);
+  font-size: 18px;
+}
+.drawer {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: min(520px, 100%);
+  background: #fff;
+  overflow: auto;
+  padding: 24px 22px 40px;
+  animation: slide 0.35s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+@keyframes slide {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+}
+@media (max-width: 700px) {
+  .drawer {
+    top: auto;
+    max-height: 90dvh;
+    border-radius: 28px 28px 0 0;
+    animation: up 0.35s both;
+  }
+  @keyframes up {
+    from {
+      transform: translateY(60px);
+      opacity: 0;
+    }
+  }
+}
+.drawer .close {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--card);
+  font-size: 18px;
+}
+.leg {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--card);
+  margin-bottom: 10px;
+  align-items: center;
+}
+.mico {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.mico svg {
+  width: 22px;
+  height: 22px;
+  fill: #fff;
+}
+.leg .m {
+  flex: 1;
+}
+.leg .m b {
+  font: 700 15px Inter;
+  display: block;
+}
+.leg .m small {
+  color: var(--muted);
+}
+.leg .p {
+  text-align: right;
+  font: 700 14px Inter;
+}
+.leg .p small {
+  display: block;
+  font: 400 12px Roboto;
+  color: var(--muted);
+}
+.fit {
+  display: grid;
+  grid-template-columns: 90px 1fr 46px;
+  gap: 10px;
+  align-items: center;
+  margin: 12px 0;
+  font-size: 14px;
+}
+.fit .tb2 {
+  height: 14px;
+  background: var(--card2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.fit .tb2 i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+}
+.fix {
+  font-size: 13px;
+  color: var(--muted);
+  grid-column: 1/-1;
+  margin-top: -6px;
+  padding-left: 100px;
+}
+.msg {
+  background: var(--card);
+  border-radius: 22px 22px 22px 6px;
+  padding: 16px;
+  margin: 14px 0;
+  font-size: 16px;
+}
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translate(-50%, 30px);
+  background: var(--ink);
+  color: #fff;
+  padding: 13px 22px;
+  border-radius: 99px;
+  font-weight: 500;
+  font-size: 15px;
+  opacity: 0;
+  transition: 0.35s;
+  z-index: 200;
+  pointer-events: none;
+  max-width: calc(100% - 30px);
+  text-align: center;
+}
+#toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.demo {
+  position: fixed;
+  left: 14px;
+  bottom: 14px;
+  z-index: 60;
+}
+.demo > button {
+  background: var(--ink);
+  color: #fff;
+  border-radius: 99px;
+  padding: 9px 16px;
+  font: 600 13px Inter;
+  opacity: 0.85;
+}
+.demo .pop2 {
+  position: absolute;
+  bottom: 46px;
+  left: 0;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+  padding: 8px;
+  min-width: 210px;
+  display: none;
+}
+.demo.open .pop2 {
+  display: block;
+}
+.pop2 button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+.pop2 button:hover {
+  background: var(--pink-t);
+}
+.pop2 hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 6px 0;
+}
+.trip-menu {
+  position: absolute;
+  right: 20px;
+  top: 60px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+  padding: 8px;
+  min-width: 250px;
+  z-index: 40;
+}
+.trip-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+.trip-menu button:hover {
+  background: var(--pink-t);
+}
+.trip-menu small {
+  display: block;
+  color: var(--muted);
+}
+.opt {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--card);
+  margin-bottom: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  width: 100%;
+  text-align: left;
+}
+.opt.on {
+  border-color: var(--pink);
+  background: var(--pink-t);
+}
+.opt .th {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex: none;
+}
+.opt .th svg {
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,10 @@
+{
+  "name": "roam2gether-prototype",
+  "version": "2.0.0",
+  "private": true,
+  "description": "roam2gether — Rome2Rio group holiday planner prototype (vanilla ES modules, no build step)",
+  "scripts": {
+    "start": "npx --yes serve . -l 8080",
+    "format": "npx --yes prettier@3 --write \"js/**/*.js\" \"css/*.css\" index.html"
+  }
+}
