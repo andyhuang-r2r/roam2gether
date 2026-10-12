@@ -1,12 +1,12 @@
 /**
  * The "Plan your trip" flow: login gate, entering the planner, and every
- * edit inside it (items, votes, price alerts, AI scaffolding, itinerary).
+ * edit inside it (items, votes, price alerts, AI place details, itinerary).
  */
 import { state, ui, saveState } from '../state/store.js';
 import { closeModal, navigate, openModal, render, renderModal } from '../render.js';
 import { showToast } from '../lib/toast.js';
 import { DESTINATIONS, getDestination } from '../data/destinations.js';
-import { MONTHS, scaffoldPlace } from '../data/planContent.js';
+import { MONTHS, draftPlaceFromText } from '../data/planContent.js';
 import { getCrew } from '../logic/crew.js';
 import { buildContext, rankDestinations } from '../logic/scoring.js';
 import {
@@ -15,17 +15,18 @@ import {
   currentPlan,
   currentUserName,
   ensurePlan,
+  isAlertOn,
   logActivity,
   makeItem,
   newItemId,
   suggestionsFor,
 } from '../logic/planner.js';
+import { alertBannerHtml } from '../views/plan/flightsSection.js';
 import { planShareLink } from '../views/plan/shareModal.js';
 import { commit, copyToClipboard, maskEmail, numberData, toggleInArray } from './shared.js';
 
-const SCAFFOLD_DELAY_MS = 1100;
+const DRAFT_DELAY_MS = 1100;
 const ITINERARY_DELAY_MS = 1300;
-const ALERT_STEP_MIN = 50;
 
 /** The destination to plan when none was chosen: the crew's top pick. */
 const topDestinationId = () => rankDestinations(getCrew(), buildContext())[0]?.destination.id ?? DESTINATIONS[0].id;
@@ -37,10 +38,10 @@ const enterPlanner = (destinationId) => {
   ensurePlan(destination);
   Object.assign(ui, {
     planAnimate: true,
-    planTab: 'when',
     activityOpen: false,
-    scaffold: null,
-    scaffoldText: '',
+    planWidgetOpen: false,
+    placeDraft: null,
+    placeText: '',
     tripMenuOpen: false,
   });
   state.role = 'lead';
@@ -57,6 +58,9 @@ const editPlan = (change) => {
 
 /** Ignore timers that fire after the user has left the planner. */
 const stillOnPlanner = (destinationId) => state.route === 'plan' && state.planDestinationId === destinationId;
+
+const ROME2RIO_URL = 'https://www.rome2rio.com/';
+const openRome2Rio = () => window.open(ROME2RIO_URL, '_blank', 'noopener');
 
 export const planActions = {
   /** Every "Plan your trip" button lands here. Login first, then the planner. */
@@ -76,8 +80,14 @@ export const planActions = {
   },
 
   /* ---------- layout ---------- */
-  selectPlanTab(el) {
-    ui.planTab = el.dataset.value;
+  /** The floating "Plan for me" button opens a mini version of the bar. */
+  openPlanWidget() {
+    ui.planWidgetOpen = true;
+    render();
+    setTimeout(() => document.querySelector('#planWidgetInput')?.focus(), 50);
+  },
+  closePlanWidget() {
+    ui.planWidgetOpen = false;
     render();
   },
   openActivity() {
@@ -119,58 +129,62 @@ export const planActions = {
     }),
 
   /* ---------- flight price alert ---------- */
-  togglePriceAlert() {
-    editPlan((plan) => {
-      plan.priceAlert.enabled = !plan.priceAlert.enabled;
-    });
-    showToast(currentPlan().priceAlert.enabled ? 'Price alert on. We’ll ping you when it drops.' : 'Price alert off.');
-  },
-  changeAlertThreshold: (el) =>
-    editPlan((plan) => {
-      plan.priceAlert.threshold = Math.max(ALERT_STEP_MIN, plan.priceAlert.threshold + numberData(el));
-    }),
+  /** One tap turns an alert channel on or off — no separate on/off switch. */
   toggleAlertChannel(el) {
     const channel = el.dataset.value;
-    editPlan((plan) => {
-      const { channels } = plan.priceAlert;
-      if (!channels.includes(channel) || channels.length > 1) toggleInArray(channels, channel); // keep at least one
-    });
-    // App notifications need the Rome2Rio app — point the user to it.
-    if (channel === 'app' && currentPlan().priceAlert.channels.includes('app')) openModal({ type: 'appDownload' });
+    editPlan((plan) => toggleInArray(plan.priceAlert.channels, channel));
+    const isOn = currentPlan().priceAlert.channels.includes(channel);
+    if (channel === 'app' && isOn) return openModal({ type: 'appDownload' }); // app alerts need the Rome2Rio app
+    if (!isOn) return showToast('Alert turned off.');
+    return showToast(channel === 'email' ? `Alert on — we’ll email ${state.user?.email ?? 'you'}.` : 'Alert on.');
+  },
+  /** The price slider: update the number and banner live without redrawing (keeps the drag smooth). */
+  setAlertThreshold(el) {
+    const plan = currentPlan();
+    plan.priceAlert.threshold = Number(el.value);
+    saveState();
+    const label = document.querySelector('#alertValue');
+    if (label) label.textContent = Number(el.value).toLocaleString('en-US');
+    const slot = document.querySelector('#alertBannerSlot');
+    if (slot) slot.innerHTML = alertBannerHtml(plan, currentDestination());
   },
   openAppStore() {
     showToast('Opens the App Store (mocked in this prototype).');
     closeModal();
   },
+  /** Demo menu: pretend the fare just dropped, so the alert can be shown off. */
   toggleSimulatedDrop() {
+    ui.demoMenuOpen = false;
     editPlan((plan) => {
       plan.priceAlert.simulatedDrop = !plan.priceAlert.simulatedDrop;
     });
-    const { priceAlert } = currentPlan();
-    if (priceAlert.simulatedDrop)
-      showToast(priceAlert.enabled ? '🔔 Price alert triggered!' : 'Price dropped — turn on an alert to get notified.');
+    const plan = currentPlan();
+    if (plan.priceAlert.simulatedDrop) {
+      showToast(isAlertOn(plan) ? '🔔 Price alert triggered!' : 'Price dropped — turn on an alert to get notified.');
+    }
   },
 
-  /* ---------- AI: scaffold a pasted place ---------- */
-  tryScaffoldExample(el) {
-    ui.scaffoldText = el.dataset.value;
-    planActions.scaffoldPlace();
+  /* ---------- AI: fill in the details of a pasted place ---------- */
+  tryPlaceExample(el) {
+    ui.placeText = el.dataset.value;
+    planActions.fillPlaceDetails();
   },
-  scaffoldPlace() {
-    const pasted = (document.querySelector('#smartAddInput')?.value || ui.scaffoldText).trim();
+  fillPlaceDetails(el) {
+    const input = el?.closest?.('.add-place-row')?.querySelector('input');
+    const pasted = (input?.value ?? ui.placeText).trim();
     if (!pasted) return showToast('Paste a link or type a place first.');
-    ui.scaffoldText = pasted;
-    ui.scaffold = { isLoading: true };
+    ui.placeText = pasted;
+    ui.placeDraft = { isLoading: true };
     render();
     const destinationId = state.planDestinationId;
     return setTimeout(() => {
       if (!stillOnPlanner(destinationId)) return;
-      ui.scaffold = { place: scaffoldPlace(pasted) };
+      ui.placeDraft = { place: draftPlaceFromText(pasted) };
       render();
-    }, SCAFFOLD_DELAY_MS);
+    }, DRAFT_DELAY_MS);
   },
-  addScaffoldedPlace() {
-    const { place } = ui.scaffold;
+  addDraftedPlace() {
+    const { place } = ui.placeDraft;
     const details = {
       area: place.area,
       hours: place.hours,
@@ -197,13 +211,9 @@ export const planActions = {
       });
       logActivity(plan, currentUserName(), `added “${place.name}” with AI`);
     }
-    Object.assign(ui, { scaffold: null, scaffoldText: '' });
+    Object.assign(ui, { placeDraft: null, placeText: '', planWidgetOpen: false });
     commit();
     showToast(existing ? 'Already on the plan — details added.' : 'Added to the plan.');
-  },
-  discardScaffoldedPlace() {
-    ui.scaffold = null;
-    render();
   },
 
   /* ---------- AI: day by day ---------- */
@@ -218,7 +228,6 @@ export const planActions = {
       ui.isBuildingItinerary = false;
       if (!stillOnPlanner(destinationId)) return;
       plan.itinerary = buildItinerary(plan, destination);
-      ui.planTab = 'days';
       logActivity(plan, 'roam2gether', 'built a day-by-day plan');
       commit();
     }, ITINERARY_DELAY_MS);
@@ -229,7 +238,9 @@ export const planActions = {
     }),
 
   /* ---------- sharing ---------- */
-  openAd: () => showToast('Opens Rome2Rio search & booking (mocked in this prototype).'),
+  /** Every booking button (and "See deals" etc.) opens the Rome2Rio home page for now. */
+  bookItem: () => openRome2Rio(),
+  openAd: () => openRome2Rio(),
   openShare: () => openModal({ type: 'share' }),
   copyPlanLink() {
     copyToClipboard(`https://${planShareLink()}`);

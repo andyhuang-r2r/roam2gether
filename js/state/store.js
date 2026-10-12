@@ -74,10 +74,10 @@ export const ui = {
   tripMenuOpen: false,
   isPickingAnswer: false, // blocks double taps while the quiz animates
   loadingTimer: null,
-  planTab: 'when', // active tab in the planner
+  planWidgetOpen: false, // the floating "Plan for me" widget is expanded
   activityOpen: false, // activity slide-out in the planner
   planAnimate: true, // play the entrance animation on the planner
-  scaffold: null, // { isLoading: true } or { place } for the AI place bar
-  scaffoldText: '',
+  placeDraft: null, // { isLoading: true } or { place } for the "fill in details" bar
+  placeText: '',
   isBuildingItinerary: false,
 };

@@ -1,9 +1,10 @@
 import { state } from '../../state/store.js';
-import { esc } from '../../lib/utils.js';
+import { clamp, esc } from '../../lib/utils.js';
 import { cityName, CURRENCY_SYMBOL } from '../../data/cities.js';
 import { AIRPORT_CODES } from '../../data/planContent.js';
-import { priceHistory } from '../../logic/planner.js';
-import { flightsFrom, getOrigins, regionOf } from '../../logic/travel.js';
+import { isAlertOn, priceHistory } from '../../logic/planner.js';
+import { bookButton } from '../../logic/booking.js';
+import { flightPrice, flightsFrom, getOrigins, regionOf } from '../../logic/travel.js';
 
 const formatNumber = (n) => Math.round(n).toLocaleString('en-US');
 
@@ -49,54 +50,68 @@ const fareRow = (origin, destination, plan) => {
         ${priceBadge(current, history)}
       </div>
       <div class="spk">${sparkline(history)}<div class="muted" style="font-size:11px;text-align:right">last 12 weeks</div></div>
+      <div class="fbook">${bookButton('Book', `flight ${cityName(origin)} → ${destination.name.split(' +')[0]}`)}</div>
     </div>`;
 };
 
 /** Banner shown when the first origin's fare is at or under the alert threshold. */
-const alertBanner = (origin, destination, plan) => {
-  const alert = plan.priceAlert;
+export const alertBannerHtml = (plan, destination) => {
+  const origin = getOrigins(state.trip)[0];
   const region = regionOf(origin);
-  const history = priceHistory(destination, region, plan);
-  const current = history[history.length - 1];
-  if (!alert.enabled || current > alert.threshold) return '';
+  const current = priceHistory(destination, region, plan).at(-1);
+  const { threshold } = plan.priceAlert;
+  if (!isAlertOn(plan) || current > threshold) return '';
   const symbol = CURRENCY_SYMBOL[region] ?? 'US$';
   return `
-    <div class="alertbox">🔔 <b>Price alert:</b> ${esc(cityName(origin))} → ${AIRPORT_CODES[destination.id] ?? ''} dropped to ${symbol}${formatNumber(current)} — below your ${symbol}${formatNumber(alert.threshold)}.
+    <div class="alertbox">🔔 <b>Price alert:</b> ${esc(cityName(origin))} → ${AIRPORT_CODES[destination.id] ?? ''} dropped to ${symbol}${formatNumber(current)} — below your ${symbol}${formatNumber(threshold)}.
       <button class="link" data-action="openAd">View on Rome2Rio</button></div>`;
 };
 
-const alertPanel = (plan, symbol) => {
-  const alert = plan.priceAlert;
-  const channels = [
-    ['email', 'Email'],
-    ['app', 'App notification'],
-  ];
+/** Slider limits around the usual fare: 60% to 115%, in steps of 10. */
+const sliderRange = (destination, region) => {
+  const base = flightPrice(destination, region);
+  return { min: Math.round((base * 0.6) / 10) * 10, max: Math.round((base * 1.15) / 10) * 10, step: 10 };
+};
+
+const channelButton = (plan, { key, icon, label, detail }) => {
+  const isOn = plan.priceAlert.channels.includes(key);
+  return `
+    <button class="alert-opt ${isOn ? 'on' : ''}" data-action="toggleAlertChannel" data-value="${key}" aria-pressed="${isOn}" title="${esc(detail)}">
+      <span class="alert-opt-icon">${icon}</span><b>${label}</b><span class="alert-opt-state">${isOn ? '✓' : '+'}</span>
+    </button>`;
+};
+
+const alertPanel = (plan, destination) => {
+  const region = regionOf(getOrigins(state.trip)[0]);
+  const symbol = CURRENCY_SYMBOL[region] ?? 'US$';
+  const { min, max, step } = sliderRange(destination, region);
+  const threshold = clamp(plan.priceAlert.threshold, min, max);
+  const email = state.user?.email || 'your email';
   return `
     <div class="alertpanel">
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <button class="switch ${alert.enabled ? 'on' : ''}" data-action="togglePriceAlert" aria-label="Toggle alert"><i></i></button>
-        <div style="flex:1;min-width:180px"><b style="font-family:Inter">Alert me when a flight drops below</b>
-          <div class="muted" style="font-size:13px">We’ll tell you the moment it does, wherever you’re planning from.</div></div>
-        <div class="stepper">
-          <button data-action="changeAlertThreshold" data-value="-50">−</button>
-          <span style="min-width:90px">${symbol}${formatNumber(alert.threshold)}</span>
-          <button data-action="changeAlertThreshold" data-value="50">+</button>
+      <div class="alert-set">
+        <div class="alert-head">
+          <b>🔔 Alert me below</b>
+          <span class="alert-value">${symbol}<span id="alertValue">${formatNumber(threshold)}</span></span>
+        </div>
+        <input class="price-slider" type="range" min="${min}" max="${max}" step="${step}" value="${threshold}"
+               data-input="alertThreshold" data-symbol="${symbol}" aria-label="Price alert threshold">
+      </div>
+      <div class="alert-via">
+        <span class="alert-via-label">Notify me by</span>
+        <div class="alert-channels">
+          ${channelButton(plan, { key: 'email', icon: '✉️', label: 'Email', detail: email })}
+          ${channelButton(plan, { key: 'app', icon: '📱', label: 'App', detail: 'Rome2Rio app' })}
         </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center">
-        <span class="muted" style="font-size:13px">Notify by</span>
-        ${channels.map(([key, label]) => `<button class="chip sm ${alert.channels.includes(key) ? 'on' : ''}" data-action="toggleAlertChannel" data-value="${key}">${label}</button>`).join('')}
-        <span style="flex:1"></span>
-        <button class="btn btn-ghost btn-sm" data-action="toggleSimulatedDrop">${alert.simulatedDrop ? 'Reset demo price' : 'Demo: simulate a price drop'}</button>
-      </div>
+      <div class="muted alert-status">${isAlertOn(plan) ? '✓ Alert on — we’ll tell you when a fare drops below your price.' : 'Choose email or the app to switch the alert on.'}</div>
     </div>`;
 };
 
 export const flightsSection = (plan, destination) => {
   const origins = getOrigins(state.trip);
-  const symbol = CURRENCY_SYMBOL[regionOf(origins[0])] ?? 'US$';
   return `
-    ${alertBanner(origins[0], destination, plan)}
+    <div id="alertBannerSlot">${alertBannerHtml(plan, destination)}</div>
     <div class="frows">${origins.map((origin) => fareRow(origin, destination, plan)).join('')}</div>
-    ${alertPanel(plan, symbol)}`;
+    ${alertPanel(plan, destination)}`;
 };

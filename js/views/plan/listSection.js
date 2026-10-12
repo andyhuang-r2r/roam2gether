@@ -2,6 +2,8 @@
  * Stay / things to do / places to eat / getting around:
  * "On the plan" cards people vote on, plus suggestion cards to add.
  */
+import { aiStar } from '../../lib/icons.js';
+import { bookButton, bookingLabel } from '../../logic/booking.js';
 import { esc } from '../../lib/utils.js';
 import { currentUserName, suggestionsFor } from '../../logic/planner.js';
 import { avatarFor } from '../components/avatar.js';
@@ -11,7 +13,7 @@ const itemSubtitle = (item) =>
     .filter(Boolean)
     .join(' · ');
 
-/** The extra details roam2gether filled in when a pasted place was scaffolded. */
+/** The extra details roam2gether filled in when a pasted place was drafted by AI. */
 const detailLines = (details) => `
   <div class="xtra">
     <span>📍 ${esc(details.area)}</span><span>🕒 ${esc(details.hours)}</span><span>🚌 ${esc(details.travel)}</span>
@@ -33,6 +35,7 @@ const itemCard = (sectionId, item, index) => {
       <div class="ift">
         <span class="by">${avatarFor(item.addedBy, 'xs')} added by ${esc(adder)}</span>
         <span style="flex:1"></span>
+        ${bookButton(bookingLabel(sectionId, item), item.name)}
         <button class="vote ${hasVoted ? 'on' : ''}" data-action="toggleVote" data-section="${sectionId}" data-index="${index}">♥ ${item.votes.length}</button>
         <button class="x sm" data-action="removeItem" data-section="${sectionId}" data-index="${index}" aria-label="Remove">×</button>
       </div>
@@ -47,7 +50,10 @@ const suggestionCard = (sectionId, suggestion, suggestionIndex) => `
       ${suggestion.tag ? `<span class="tag pink">${esc(suggestion.tag)}</span>` : ''}
     </div>
     <p class="idesc">${esc(suggestion.description || '')}</p>
-    <button class="btn btn-ghost btn-sm" data-action="addSuggestion" data-section="${sectionId}" data-index="${suggestionIndex}">+ Add to plan</button>
+    <div class="card-actions">
+      <button class="btn btn-ghost btn-sm" data-action="addSuggestion" data-section="${sectionId}" data-index="${suggestionIndex}">+ Add to plan</button>
+      ${bookButton(bookingLabel(sectionId, suggestion), suggestion.name)}
+    </div>
   </div>`;
 
 /** A clearly-labelled mock ad, targeted from the trip. Only for stay / do. */
@@ -77,15 +83,21 @@ export const listSection = (sectionId, plan, destination) => {
     .filter(({ suggestion }) => !addedNames.includes(suggestion.name));
   const showAd = sectionId === 'stay' || sectionId === 'do';
   return `
-    <div class="sub">On the plan <b>${added.length}</b></div>
-    ${
-      added.length
-        ? `<div class="igrid">${added.map((item, i) => itemCard(sectionId, item, i)).join('')}</div>`
-        : '<div class="empty">Nothing here yet. Add from the suggestions, or paste something into the bar at the top.</div>'
-    }
-    <div class="sub">Suggested for your crew <span class="aitag">roam2gether</span></div>
-    <div class="igrid">
-      ${suggestions.map(({ suggestion, index }) => suggestionCard(sectionId, suggestion, index)).join('')}
-      ${showAd ? adCard(destination, sectionId) : ''}
+    <div class="group confirmed">
+      <div class="group-head"><span class="group-badge">✓ On your plan</span><b class="group-count">${added.length}</b>
+        <span class="group-hint">Confirmed — the crew can vote on these</span></div>
+      ${
+        added.length
+          ? `<div class="igrid">${added.map((item, i) => itemCard(sectionId, item, i)).join('')}</div>`
+          : '<div class="empty">Nothing on the plan yet. Add from the suggestions below, or use Plan for me.</div>'
+      }
+    </div>
+    <div class="group suggested">
+      <div class="group-head"><span class="group-badge">${aiStar()} Suggested for you</span>
+        <span class="group-hint">Ideas only — add the ones you like</span></div>
+      <div class="igrid">
+        ${suggestions.map(({ suggestion, index }) => suggestionCard(sectionId, suggestion, index)).join('')}
+        ${showAd ? adCard(destination, sectionId) : ''}
+      </div>
     </div>`;
 };

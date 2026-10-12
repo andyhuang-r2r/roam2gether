@@ -7,7 +7,7 @@
  *   title, shortlistedMonths: number[],
  *   items: { stay: Item[], do: Item[], eat: Item[], move: Item[] },
  *   notes: { [sectionId]: string },
- *   priceAlert: { enabled, threshold, channels: string[], simulatedDrop },
+ *   priceAlert: { threshold, channels: ('email'|'app')[], simulatedDrop } — on when any channel is set,
  *   itinerary: null | { days: Day[], bookings: Booking[] },
  *   activity: { who, text, when }[],
  *   presence: { who }[],    // teammates active right now (shown as a ring on their avatar)
@@ -34,6 +34,9 @@ const PRICE_HISTORY_WEEKS = 12;
 
 /** Who is using the planner: the logged-in user, or the Trip Lead by default. */
 export const currentUserName = () => state.user?.name || TRIP_LEAD_NAME;
+
+/** A price alert is on as soon as one notification channel is chosen. */
+export const isAlertOn = (plan) => plan.priceAlert.channels.length > 0;
 
 export const currentDestination = () => getDestination(state.planDestinationId);
 
@@ -78,9 +81,8 @@ export const createPlan = (destination) => {
     },
     notes: {},
     priceAlert: {
-      enabled: false,
       threshold: defaultAlertThreshold(destination, trip),
-      channels: ['email'],
+      channels: [],
       simulatedDrop: false,
     },
     itinerary: null,
@@ -110,6 +112,11 @@ export const ensurePlan = (destination) => {
   });
   Object.assign(saved.items, { ...fresh.items, ...saved.items });
   Object.assign(saved.priceAlert, { ...fresh.priceAlert, ...saved.priceAlert });
+  // Older saves had an on/off switch plus channels; now the channels alone say whether the alert is on.
+  if ('enabled' in saved.priceAlert) {
+    if (!saved.priceAlert.enabled) saved.priceAlert.channels = [];
+    delete saved.priceAlert.enabled;
+  }
   return saved;
 };
 
@@ -124,8 +131,11 @@ export const priceHistory = (destination, region, plan) => {
     price = clamp(price * (1 + (random() - 0.54) * 0.07), base * 0.84, base * 1.2);
     return Math.round(price / 10) * 10;
   });
-  if (plan.priceAlert.simulatedDrop)
-    history[PRICE_HISTORY_WEEKS - 1] = Math.round((plan.priceAlert.threshold * 0.96) / 10) * 10;
+  if (plan.priceAlert.simulatedDrop) {
+    // A visible dip: below the usual range and below the alert price.
+    const dip = Math.min(plan.priceAlert.threshold * 0.96, Math.min(...history) * 0.95);
+    history[PRICE_HISTORY_WEEKS - 1] = Math.round(dip / 10) * 10;
+  }
   return history;
 };
 

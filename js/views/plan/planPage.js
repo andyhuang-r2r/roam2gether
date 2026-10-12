@@ -2,13 +2,14 @@
  * The collaborative "Plan your trip" page.
  *
  * Top to bottom: the trip card (introduces the trip and flows straight into
- * the flight prices), the "paste a place" bar, then one tab per section.
+ * the flight prices), the "paste a place" bar, then every section stacked in order.
  * Activity slides in from the right.
  */
 import { state, ui } from '../../state/store.js';
 import { esc } from '../../lib/utils.js';
 import { PLAN_SECTIONS, LIST_SECTIONS } from '../../data/planSections.js';
 import { renderScene } from '../../scenes/index.js';
+import { aiStar, transportIcon, TRANSPORT_COLORS } from '../../lib/icons.js';
 import { describeTiming } from '../../logic/tripSummary.js';
 import { crewSize, getCrew } from '../../logic/crew.js';
 import { currentDestination, currentPlan, currentUserName } from '../../logic/planner.js';
@@ -18,7 +19,7 @@ import { listSection } from './listSection.js';
 import { whenSection } from './whenSection.js';
 import { flightsSection } from './flightsSection.js';
 import { daysSection } from './daysSection.js';
-import { smartAddBar } from './smartAddBar.js';
+import { addPlaceBar, addPlaceWidget } from './addPlaceBar.js';
 
 /* ---------- header ---------- */
 
@@ -63,27 +64,13 @@ const tripCard = (plan, destination) => {
           </div>
         </div>
       </div>
-      <div class="trip-bridge">
-        <span class="trip-bridge-icon">✈</span>
-        <div><b>Flights decide whether this trip happens.</b>
-          <span class="muted"> Watch the fares to ${esc(city)} and set an alert before you book anything else.</span></div>
-      </div>
       <div class="trip-flights">${flightsSection(plan, destination)}</div>
     </section>`;
 };
 
-/* ---------- tabs ---------- */
+/* ---------- sections (stacked, no tabs) ---------- */
 
-const tabBar = (plan) => `
-  <div class="tabs" role="tablist">
-    ${PLAN_SECTIONS.map((section) => {
-      const count = LIST_SECTIONS.includes(section.id) ? plan.items[section.id].length : null;
-      return `<button class="tab ${ui.planTab === section.id ? 'on' : ''}" role="tab" data-action="selectPlanTab" data-value="${section.id}">
-        ${section.tab}${count ? ` <span class="pill">${count}</span>` : ''}${section.isAi ? ' <span class="aitag">AI</span>' : ''}</button>`;
-    }).join('')}
-  </div>`;
-
-const tabBody = (sectionId, plan, destination) => {
+const sectionBody = (sectionId, plan, destination) => {
   if (sectionId === 'when') return whenSection(plan, destination);
   if (sectionId === 'days') return daysSection(plan);
   return listSection(sectionId, plan, destination);
@@ -92,16 +79,26 @@ const tabBody = (sectionId, plan, destination) => {
 const noteBox = (sectionId, plan) => `
   <textarea class="note-in" data-bind="plans.${state.planDestinationId}.notes.${sectionId}" placeholder="Add a note for the crew…">${esc(plan.notes[sectionId] ?? '')}</textarea>`;
 
-const activeTab = (plan, destination) => {
-  const section = PLAN_SECTIONS.find((s) => s.id === ui.planTab) ?? PLAN_SECTIONS[0];
+const sectionIcon = (section) =>
+  section.mode
+    ? `<span class="sico" style="background:${TRANSPORT_COLORS[section.mode]}">${transportIcon(section.mode)}</span>`
+    : `<span class="sico soft">${section.emoji}</span>`;
+
+const planSection = (section, plan, destination) => {
+  const count = LIST_SECTIONS.includes(section.id) ? plan.items[section.id].length : null;
   return `
-    <section class="psec">
+    <section class="psec" id="sec-${section.id}">
+      <div class="shead">
+        ${sectionIcon(section)}
+        <h2>${esc(section.title)}${count ? ` <span class="pill">${count}</span>` : ''}${section.isAi ? ` ${aiStar()}` : ''}</h2>
+      </div>
       <div class="pbody">
-        <p class="muted" style="margin-bottom:14px">${esc(section.subtitle)}</p>
-        ${tabBody(section.id, plan, destination)}${noteBox(section.id, plan)}
+        ${sectionBody(section.id, plan, destination)}${noteBox(section.id, plan)}
       </div>
     </section>`;
 };
+
+const allSections = (plan, destination) => PLAN_SECTIONS.map((section) => planSection(section, plan, destination)).join('');
 
 /* ---------- activity slide-out ---------- */
 
@@ -119,6 +116,17 @@ const activityPanel = (plan) =>
        </aside>`
     : '';
 
+/* ---------- floating "Plan for me" widget (a mini version of the bar) ---------- */
+
+/** The widget only shows once the "Plan for me" bar has scrolled out of view. */
+setInterval(() => {
+  const fab = document.querySelector('#planFab');
+  const bar = document.querySelector('#addPlaceBar');
+  if (!fab || !bar) return;
+  const { top, bottom } = bar.getBoundingClientRect();
+  fab.classList.toggle('show', bottom < 0 || top > window.innerHeight);
+}, 250);
+
 export const planView = () => {
   const destination = currentDestination();
   const plan = currentPlan();
@@ -128,11 +136,11 @@ export const planView = () => {
       <div class="wrap plan">
         <main class="doc">
           ${tripCard(plan, destination)}
-          ${smartAddBar(destination)}
-          ${tabBar(plan)}
-          ${activeTab(plan, destination)}
+          ${addPlaceBar(destination)}
+          ${allSections(plan, destination)}
         </main>
       </div>
-      ${activityPanel(plan)}
-    </div>`;
+    </div>
+    ${addPlaceWidget()}
+    ${activityPanel(plan)}`;
 };

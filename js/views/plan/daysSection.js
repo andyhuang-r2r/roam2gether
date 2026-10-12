@@ -23,7 +23,7 @@ const slotRow = (slot, dayIndex, slotIndex) => `
     <div style="flex:1">
       <b>${esc(slot.title)}</b>${slot.source === 'suggested' ? ' <span class="tag" style="font-size:11px;padding:2px 8px">suggested</span>' : ''}
       <div class="muted" style="font-size:13px">${esc(slot.note || '')}</div>
-      ${slot.bookable ? `<button class="chip sm bk" data-action="openAd">Book: ${esc(slot.bookable)}</button>` : ''}
+      ${slot.bookable ? `<button class="btn btn-pink btn-sm" data-action="bookItem" aria-label="Book ${esc(slot.bookable)}">Book</button>` : ''}
     </div>
     <button class="x sm" data-action="removeItinerarySlot" data-day="${dayIndex}" data-index="${slotIndex}" aria-label="Remove">×</button>
   </div>`;

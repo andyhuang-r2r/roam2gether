@@ -52,7 +52,7 @@ export const SECTION_LABELS = {
 };
 
 /** Example places to try in the AI "paste a place" bar. */
-export const SCAFFOLD_EXAMPLES = {
+export const PLACE_EXAMPLES = {
   default: ['Time Out Market', 'Pastéis de Belém', 'Pena Palace Sintra'],
   penang: ['Gurney Drive hawker', 'Kek Lok Si temple'],
   valencia: ['Mercado Central', 'City of Arts and Sciences'],

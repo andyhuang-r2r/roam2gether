@@ -26,3 +26,10 @@ export const transportPaths = (mode) => TRANSPORT_PATHS[mode] ?? '';
 
 /** A white 24×24 icon for the given transport mode. */
 export const transportIcon = (mode) => `<svg viewBox="0 0 24 24" fill="#fff">${TRANSPORT_PATHS[mode] ?? ''}</svg>`;
+
+/**
+ * The "AI" sparkle: one large four-point star and two small ones, filled with
+ * the gradient defined once in index.html (#ai-gradient).
+ */
+export const aiStar = (size = 18) =>
+  `<svg class="ai-star" viewBox="0 0 24 24" width="${size}" height="${size}" role="img" aria-label="AI"><path d="M10 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7Z"/><path d="M18.5 14c.3 2.1 1.1 2.9 3.2 3.2-2.1.3-2.9 1.1-3.2 3.2-.3-2.1-1.1-2.9-3.2-3.2 2.1-.3 2.9-1.1 3.2-3.2Z"/><path d="M18 2c.2 1.4.7 1.9 2.1 2.1-1.4.2-1.9.7-2.1 2.1-.2-1.4-.7-1.9-2.1-2.1 1.4-.2 1.9-.7 2.1-2.1Z"/></svg>`;

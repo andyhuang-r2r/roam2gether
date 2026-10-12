@@ -164,11 +164,18 @@ registerInputHandlers({
     blur: () =>
       setTimeout(() => document.querySelectorAll('.ac-list').forEach((list) => list.classList.remove('open')), 180),
   },
-  smartAdd: {
+  alertThreshold: {
+    input: (el) => runAction('setAlertThreshold', el),
+  },
+  addPlace: {
     input: (el) => {
-      ui.scaffoldText = el.value;
+      ui.placeText = el.value;
+      // the page bar and the floating widget share one text
+      document.querySelectorAll('[data-input=addPlace]').forEach((input) => {
+        if (input !== el) input.value = el.value;
+      });
     },
-    enter: () => runAction('scaffoldPlace'),
+    enter: () => runAction('fillPlaceDetails'),
   },
 });
 

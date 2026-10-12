@@ -303,7 +303,7 @@ export const PLAN_CONTENT = {
   },
 };
 
-export const SCAFFOLD_CATALOG = [
+export const PLACE_CATALOG = [
   {
     pattern: /time\s*out|mercado da ribeira/i,
     name: 'Time Out Market Lisboa',
@@ -466,12 +466,12 @@ export const getMoveSuggestions = (destination) =>
   }));
 
 /**
- * AI "scaffold a place": turn whatever the user pasted into a draft card.
+ * AI "fill in the details": turn whatever the user pasted into a draft place card.
  * Known places come from the catalog; anything else gets a flagged best guess.
  */
-export const scaffoldPlace = (pasted) => {
+export const draftPlaceFromText = (pasted) => {
   const text = pasted.trim();
-  const known = SCAFFOLD_CATALOG.find((place) => place.pattern.test(text));
+  const known = PLACE_CATALOG.find((place) => place.pattern.test(text));
   if (known) return { ...known, confidence: 'high', source: text };
 
   const name = guessNameFromText(text);
