@@ -62,10 +62,14 @@ export const initEvents = () => {
 };
 
 const closeTripMenuOnOutsideClick = (event) => {
-  if (!ui.tripMenuOpen) return;
-  const insideMenu = event.target.closest('.trip-menu') || event.target.closest('[data-action=toggleTripMenu]');
+  if (!ui.tripMenuOpen && !ui.profileMenuOpen) return;
+  const insideMenu =
+    event.target.closest('.trip-menu') ||
+    event.target.closest('[data-action=toggleTripMenu]') ||
+    event.target.closest('[data-action=toggleProfileMenu]');
   if (!insideMenu) {
     ui.tripMenuOpen = false;
+    ui.profileMenuOpen = false;
     render();
   }
 };

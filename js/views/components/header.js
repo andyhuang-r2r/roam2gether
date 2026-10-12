@@ -2,6 +2,7 @@ import { state, ui } from '../../state/store.js';
 import { esc } from '../../lib/utils.js';
 import { describeTiming } from '../../logic/tripSummary.js';
 import { avatar } from './avatar.js';
+import { profileButton, profileMenu } from './profile.js';
 
 const PARTICIPANT_ROUTES = ['join', 'quiz', 'mini', 'details', 'results'];
 
@@ -38,9 +39,10 @@ export const header = () => {
         <nav class="nav ${state.route === 'plan' ? 'nav-on-plan' : ''}">
           <button class="navlink" data-action="planTrip">Plan your trip</button>
           <button class="btn btn-ghost btn-sm" data-action="toggleTripMenu">My trips</button>
-          ${avatar(you, 'sm')}
+          ${isLead ? profileButton() : avatar(you, 'sm')}
         </nav>
       </div>
       ${tripMenu()}
+      ${isLead ? profileMenu() : ''}
     </header>`;
 };

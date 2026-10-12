@@ -84,3 +84,50 @@
     display: none;
   }
 }
+
+.profile-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  padding: 0;
+  background: none;
+  border: 0;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+/* the hover ring sits just outside the portrait, evenly all round */
+.profile-btn:hover .portrait,
+.profile-btn[aria-expanded='true'] .portrait {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--pink);
+}
+.trip-menu.profile-menu {
+  top: 4px;
+}
+.portrait {
+  border-radius: 50%;
+  display: block;
+}
+.online-dot {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--plane);
+  border: 2px solid #fff;
+}
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.profile-card b {
+  font-family: Inter, sans-serif;
+}

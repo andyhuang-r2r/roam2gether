@@ -3,6 +3,7 @@ import { state, ui, resetState } from '../state/store.js';
 import { deepClone } from '../lib/utils.js';
 import { navigate, render } from '../render.js';
 import { runAction } from '../events.js';
+import { showToast } from '../lib/toast.js';
 
 const startSetup = () => {
   state.role = 'lead';
@@ -30,10 +31,23 @@ export const navigationActions = {
   },
   openCurrentTrip() {
     ui.tripMenuOpen = false;
+    ui.profileMenuOpen = false;
     state.role = 'lead';
     navigate('invite');
   },
+  toggleProfileMenu() {
+    ui.profileMenuOpen = !ui.profileMenuOpen;
+    ui.tripMenuOpen = false;
+    render();
+  },
+  /** Account menu entries are mocked in this prototype. */
+  mockAccount(el) {
+    ui.profileMenuOpen = false;
+    render();
+    showToast(`${el.dataset.value} — mocked in this prototype.`);
+  },
   toggleTripMenu() {
+    ui.profileMenuOpen = false;
     ui.tripMenuOpen = !ui.tripMenuOpen;
     render();
   },

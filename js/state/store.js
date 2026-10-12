@@ -72,6 +72,7 @@ export const ui = {
   calendar: { year: 2027, month: 2 }, // month shown in the date picker (0-based)
   demoMenuOpen: false,
   tripMenuOpen: false,
+  profileMenuOpen: false,
   isPickingAnswer: false, // blocks double taps while the quiz animates
   loadingTimer: null,
   planWidgetOpen: false, // the floating "Plan for me" widget is expanded
