@@ -20,7 +20,7 @@ const waitingCard = (person) => `
   </div>`;
 
 export const crewSection = (crew) => `
-  <h2 class="h2">The crew</h2>
+  <h2 class="h2">The group</h2>
   <p class="h2sub">${crew.filter((p) => p.done).length} of ${crewSize()} have had their say.</p>
   <div class="people">${crew.map((p) => (p.done ? doneCard(p) : waitingCard(p))).join('')}</div>`;
 

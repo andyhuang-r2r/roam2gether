@@ -33,7 +33,7 @@ const nudgeModal = ({ who }) => {
         .filter((p) => !p.done)
         .map((p) => p.name);
   return sheet(`
-    <h2>Nudge ${who ? esc(who) : 'the crew'}</h2>
+    <h2>Nudge ${who ? esc(who) : 'the group'}</h2>
     <p class="muted">Here’s the message. Cheeky, but not pushy.</p>
     <div class="msg"><b>The trip needs your expert opinion.</b> It takes about two minutes and contains no spreadsheets.
       <div class="muted" style="margin-top:6px;font-size:13px">${INVITE_LINK}</div></div>
@@ -58,7 +58,7 @@ const lockShortlistModal = ({ selected }) => {
   const count = selected.length;
   return sheet(`
     <h2>Lock a shortlist</h2>
-    <p class="muted" style="margin-bottom:14px">Pick up to three. Your crew gets to vote on just these — no more endless options.</p>
+    <p class="muted" style="margin-bottom:14px">Pick up to three. Your group gets to vote on just these — no more endless options.</p>
     ${ranked.map((r) => shortlistOption(r, selected.includes(r.destination.id))).join('')}
     <button class="btn btn-pink btn-block" style="margin-top:10px" data-action="confirmLockShortlist" ${count ? '' : 'disabled'}>
       Lock ${count || ''} ${count === 1 ? 'idea' : 'ideas'}</button>`);
@@ -69,7 +69,7 @@ const lockShortlistModal = ({ selected }) => {
 const startOverModal = () =>
   sheet(`
     <h2>Start over with a new brief?</h2>
-    <p class="muted" style="margin-bottom:20px">This clears the crew’s answers and takes you back to the practical basics. Your invite link stays the same.</p>
+    <p class="muted" style="margin-bottom:20px">This clears the group’s answers and takes you back to the practical basics. Your invite link stays the same.</p>
     <div style="display:flex;gap:10px">
       <button class="btn btn-ghost" data-action="closeModal">Keep the trip</button>
       <button class="btn btn-pink" data-action="confirmStartOver">Start fresh</button>
@@ -80,7 +80,7 @@ const lateArrivalModal = () =>
     <h2>Add a late arrival</h2>
     <p class="muted" style="margin-bottom:14px">Someone just said “wait, I want in.” Classic.</p>
     <input class="input" id="lateArrivalName" placeholder="Their name, e.g. Alex" style="margin-bottom:16px">
-    <button class="btn btn-pink btn-block" data-action="confirmLateArrival">Add to the crew</button>`);
+    <button class="btn btn-pink btn-block" data-action="confirmLateArrival">Add to the group</button>`);
 
 /* ---------- routes drawer ---------- */
 
@@ -155,7 +155,7 @@ const compareModal = ({ destinationId }) => {
   const holdout = fits[fits.length - 1].person.name;
   return sheet(`
     <span class="eyebrow">Compare with the group</span>
-    <h2 style="margin:6px 0 4px">How the crew feels about ${esc(destination.name)}</h2>
+    <h2 style="margin:6px 0 4px">How the group feels about ${esc(destination.name)}</h2>
     <p class="muted" style="margin-bottom:12px">Group fit <b>${groupFit}%</b> · biggest fan <b>${esc(fan)}</b> · needs convincing: <b>${esc(holdout)}</b></p>
     ${fits.map((f) => fitRow(f, destination)).join('')}
     <button class="btn btn-pink btn-block" style="margin-top:12px" data-action="openRoutes" data-value="${destination.id}">Explore routes</button>`);

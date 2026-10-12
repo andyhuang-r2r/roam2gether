@@ -45,7 +45,7 @@ const enterPlanner = (destinationId) => {
     tripMenuOpen: false,
   });
   state.role = 'lead';
-  state.crewReplied = true; // the planner assumes the crew has had their say
+  state.crewReplied = true; // the planner assumes the group has had their say
   closeModal(); // the routes drawer / login dialog may still be open
   navigate('plan');
 };

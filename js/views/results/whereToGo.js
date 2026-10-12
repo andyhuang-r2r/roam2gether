@@ -45,7 +45,7 @@ const voteStatus = (tally) => {
   return `
     <div class="votehead">
       <div><b style="font-family:Inter">Cast your vote</b>
-        <div class="muted" style="font-size:14px">${tally.votesCast} of ${tally.voterCount} votes are in — just yours to go. Once you vote, roam2gether picks the crew’s destination.</div></div>
+        <div class="muted" style="font-size:14px">${tally.votesCast} of ${tally.voterCount} votes are in — just yours to go. Once you vote, roam2gether picks the group’s destination.</div></div>
     </div>`;
 };
 
@@ -56,7 +56,7 @@ export const whereToGoSection = (crew, ranked, isLead) => {
   const moreIdeas = ranked.filter((r) => !inVote.has(r.destination.id)).slice(0, 3);
   return `
     <h2 class="h2" style="margin-top:28px">Where to go</h2>
-    <p class="h2sub">roam2gether’s best matches for the whole crew — vote and roam2gether picks one.</p>
+    <p class="h2sub">roam2gether’s best matches for the whole group — vote and roam2gether picks one.</p>
     ${whatIfToggle()}
     ${lockedShortlistBanner(isLead)}
     ${voteStatus(tally)}

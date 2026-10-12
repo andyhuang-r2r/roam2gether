@@ -124,7 +124,7 @@ export const PLAN_CONTENT = {
         name: 'Time Out Market Lisboa',
         tag: 'Food hall',
         meta: 'Cais do Sodré · €€',
-        description: 'Forty stalls, one big table — perfect for the street-food crew.',
+        description: 'Forty stalls, one big table — perfect for the street-food group.',
       },
       {
         name: 'Pastéis de Belém',
@@ -190,7 +190,7 @@ export const PLAN_CONTENT = {
         name: 'Penang Hill sunrise',
         tag: 'Early start',
         meta: 'Half day · RM 30',
-        description: 'Funicular up before the heat; ideal for the 6am train crew.',
+        description: 'Funicular up before the heat; ideal for the 6am train group.',
       },
       {
         name: 'Market tour + cooking class',

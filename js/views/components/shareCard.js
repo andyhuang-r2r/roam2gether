@@ -29,7 +29,7 @@ export const shareCard = (trip, { hideStatus = false } = {}) => {
         <div class="ttl">${esc(trip.name || 'Our group trip')}</div>
       </div>
       <div class="body">
-        <div class="r"><span>👥</span><span><b>Crew:</b> ${describeCrew(trip)}${lateCount > 0 ? ` (+${lateCount} late)` : ''}, leaving from ${esc(describeOrigins(trip))}</span></div>
+        <div class="r"><span>👥</span><span><b>Group:</b> ${describeCrew(trip)}${lateCount > 0 ? ` (+${lateCount} late)` : ''}, leaving from ${esc(describeOrigins(trip))}</span></div>
         <div class="r"><span>🗓️</span><span><b>Timing:</b> ${esc(describeTiming(trip))}</span></div>
         <div class="r"><span>💸</span><span><b>Budget feel:</b> ${esc(trip.budget)}${trip.nonNegotiable ? ` · “${esc(trip.nonNegotiable)}”` : ''}</span></div>
         ${hideStatus ? '' : progressStatus(done, total)}

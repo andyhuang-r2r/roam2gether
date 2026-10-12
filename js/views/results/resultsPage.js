@@ -19,8 +19,8 @@ const summaryHero = (stats, crew, hasSampleSeat) => `
       <span>${crew.filter((p) => p.done).length} of ${crewSize()} in${hasSampleSeat ? ' (1 sample)' : ''}</span>
       <span>${esc(describeTiming(state.trip, { short: true }))}</span>
     </div>
-    <span class="eyebrow">roam2gether’s read of your crew</span>
-    <h1>Your crew is leaning toward: ${esc(crewHeadline(stats))}.</h1>
+    <span class="eyebrow">roam2gether’s read of your group</span>
+    <h1>Your group is leaning toward: ${esc(crewHeadline(stats))}.</h1>
     <div class="gc">
       <div><b>The good news</b>Nobody’s asking for the impossible — ${esc(goodNews(stats))}</div>
       <div><b>The complicated news</b>${esc(complicatedNews(stats))}</div>
@@ -30,7 +30,7 @@ const summaryHero = (stats, crew, hasSampleSeat) => `
 const leadActions = (topId) => `
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
     <button class="btn btn-pink btn-sm" data-action="planTrip" data-value="${topId}">Plan your trip</button>
-    <button class="btn btn-ink btn-sm" data-action="openNudge">👋 Nudge the crew</button>
+    <button class="btn btn-ink btn-sm" data-action="openNudge">👋 Nudge the group</button>
     <button class="btn btn-ghost btn-sm" data-action="openLockShortlist">📌 Lock a shortlist</button>
     <button class="btn btn-ghost btn-sm" data-action="openLateArrival">➕ Add a late arrival</button>
     <button class="btn btn-ghost btn-sm" data-action="openStartOver">🔄 Start over</button>

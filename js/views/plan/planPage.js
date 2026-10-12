@@ -46,18 +46,19 @@ const tripCard = (plan, destination) => {
       <div class="trip-hero">
         <div class="trip-scene">${renderScene(destination.scene, destination.sceneVariant)}<div class="trip-shade"></div></div>
         <div class="trip-top">
-          <button class="trip-back" data-action="backToResults">← Back to results</button>
+          <button class="trip-back" data-action="backToResults">← Back<span class="back-long"> to results</span></button>
           <div class="trip-actions">
-            ${collaboratorAvatars(plan)}
+            <span class="trip-people-wide">${collaboratorAvatars(plan)}</span>
             <button class="btn btn-white btn-sm" data-action="openActivity">Activity <span class="pill">${plan.activity.length}</span></button>
             <button class="btn btn-pink btn-sm" data-action="openShare">Share</button>
           </div>
         </div>
         <div class="trip-intro">
+          <div class="trip-people-narrow">${collaboratorAvatars(plan)}</div>
           <span class="eyebrow trip-eyebrow">Your trip to ${esc(destination.country)}</span>
           <input class="titlein" data-bind="plans.${destination.id}.title" value="${esc(plan.title)}" aria-label="Trip name">
           <div class="trip-facts">
-            <span>📍 ${esc(destination.name)}</span>
+            <span class="fact-place">📍 ${esc(destination.name)}</span>
             <span>🗓️ ${esc(describeTiming(state.trip, { short: true }))}</span>
             <span>👥 ${crewSize()} travellers</span>
             <span id="savedIndicator" class="saved">✓ All changes saved</span>
@@ -76,9 +77,6 @@ const sectionBody = (sectionId, plan, destination) => {
   return listSection(sectionId, plan, destination);
 };
 
-const noteBox = (sectionId, plan) => `
-  <textarea class="note-in" data-bind="plans.${state.planDestinationId}.notes.${sectionId}" placeholder="Add a note for the crew…">${esc(plan.notes[sectionId] ?? '')}</textarea>`;
-
 const sectionIcon = (section) =>
   section.mode
     ? `<span class="sico" style="background:${TRANSPORT_COLORS[section.mode]}">${transportIcon(section.mode)}</span>`
@@ -93,7 +91,7 @@ const planSection = (section, plan, destination) => {
         <h2>${esc(section.title)}${count ? ` <span class="pill">${count}</span>` : ''}${section.isAi ? ` ${aiStar()}` : ''}</h2>
       </div>
       <div class="pbody">
-        ${sectionBody(section.id, plan, destination)}${noteBox(section.id, plan)}
+        ${sectionBody(section.id, plan, destination)}
       </div>
     </section>`;
 };

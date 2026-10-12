@@ -43,7 +43,7 @@ export const inviteView = () => {
           <div>${shareCard(state.trip)}</div>
           <div>
             <span class="eyebrow">Trip created</span>
-            <h1 style="font-size:clamp(28px,4vw,40px);margin:8px 0 6px">Now invite the crew.</h1>
+            <h1 style="font-size:clamp(28px,4vw,40px);margin:8px 0 6px">Now invite the group.</h1>
             <p class="muted" style="margin-bottom:20px">One link. They tap, play ten tiny dilemmas, and that’s it. No account, no spreadsheet.</p>
 
             <div class="linkbox"><span>${SHARE_LINK}</span><button class="btn btn-ink btn-sm" data-action="copyInviteLink">Copy link</button></div>
@@ -59,7 +59,7 @@ export const inviteView = () => {
 
             <div class="card white" style="margin-top:24px">
               <div style="display:flex;justify-content:space-between;align-items:center">
-                <h3>The crew</h3><span class="pill done">${doneCount} of ${crewSize()} in</span>
+                <h3>The group</h3><span class="pill done">${doneCount} of ${crewSize()} in</span>
               </div>
               ${crew.map(personRow).join('')}
               ${state.invitedEmails.map(emailRow).join('')}

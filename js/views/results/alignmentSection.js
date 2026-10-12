@@ -42,7 +42,7 @@ const paceCard = (stats) => {
 
 const reachMessage = (stats) => {
   if (stats.reach.any >= stats.count / 2) return 'Most of you are happy to go far — the map is wide open.';
-  if (stats.reach.close >= stats.count / 2) return 'Keep it close: most of the crew wants a short trip there.';
+  if (stats.reach.close >= stats.count / 2) return 'Keep it close: most of the group wants a short trip there.';
   return 'Medium-haul is acceptable, but keep travel time sensible.';
 };
 
@@ -96,7 +96,7 @@ const styleCard = (stats) => {
 /** "Where you align" — visual bars and clusters, not raw scores. */
 export const alignmentSection = (stats) => `
   <h2 class="h2">Where you align</h2>
-  <p class="h2sub">Not raw scores — what the crew actually has in common.</p>
+  <p class="h2sub">Not raw scores — what the group actually has in common.</p>
   <div class="align">
     ${climateCard(stats)}${regionCard(stats)}${paceCard(stats)}${practicalFitCard(stats)}${styleCard(stats)}
   </div>`;

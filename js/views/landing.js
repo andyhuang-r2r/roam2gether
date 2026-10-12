@@ -12,7 +12,7 @@ const heroCollage = () => {
     <div class="collage">
       <div class="big">
         ${renderScene('europe', 'lisbon')}
-        <div class="ov">Lisbon + Cascais<div style="font:500 14px Roboto;opacity:.9">92% match for your crew</div></div>
+        <div class="ov">Lisbon + Cascais<div style="font:500 14px Roboto;opacity:.9">92% match for your group</div></div>
       </div>
       ${floatingChip(jordan, 'Mountains', 'left:-4px;top:30px;--r:-3deg')}
       ${floatingChip(priya, 'Asia', 'right:-6px;top:110px;animation-delay:-1.5s;--r:2deg')}
@@ -31,7 +31,7 @@ const problemSection = () => `
           <span class="eyebrow">The problem</span>
           <h2>One person becomes the unpaid travel agent.</h2>
           <p class="muted" style="font-size:18px">You know the group chat. Everyone has opinions; nobody has a spreadsheet.
-            roam2gether gets every opinion in two minutes, then shows where the crew overlaps — and where it doesn’t.</p>
+            roam2gether gets every opinion in two minutes, then shows where the group overlaps — and where it doesn’t.</p>
         </div>
         <div class="chat">
           <div class="bub"><small>Maya</small>ok so… where does everyone want to go?</div>
@@ -51,7 +51,7 @@ const howItWorks = () => `
     <div class="grid3" style="margin-top:18px">
       <div class="card"><div class="step-n">1</div><h3>You set the basics</h3><p class="muted">Who, from where, when, rough budget. About a minute.</p></div>
       <div class="card"><div class="step-n">2</div><h3>Everyone plays</h3><p class="muted">Ten tiny “this or that” dilemmas, a few quick details, one optional secret wish.</p></div>
-      <div class="card"><div class="step-n">3</div><h3>roam2gether finds the middle ground</h3><p class="muted">Where you agree, where you don’t, and destinations that suit the whole crew.</p></div>
+      <div class="card"><div class="step-n">3</div><h3>roam2gether finds the middle ground</h3><p class="muted">Where you agree, where you don’t, and destinations that suit the whole group.</p></div>
     </div>
     <div style="text-align:center;margin-top:38px"><button class="btn btn-pink" data-action="startTrip">Start a group trip</button></div>
   </div>`;

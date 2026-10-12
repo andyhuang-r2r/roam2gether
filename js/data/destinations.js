@@ -124,7 +124,7 @@ export const DESTINATIONS = [
     sceneVariant: 'penang',
     baselineMatch: 88,
     costLevel: 1,
-    blurb: 'A strong answer for the street-food / Asia / relaxed-exploring crew.',
+    blurb: 'A strong answer for the street-food / Asia / relaxed-exploring group.',
     whyItWorks: ['Street-food capital', 'Heritage boutique stays', 'Short flight'],
     watchOut: 'Humid and hot — plan indoor breaks, and no real beach days.',
     traits: {

@@ -7,7 +7,7 @@ export const TRIP_TYPES = {
   friends: { label: 'A few friends', icon: '🍻', hint: '3–6 adults', companionNoun: 'friends' },
   family: { label: 'Family with kids', icon: '👨‍👩‍👧', hint: 'Little legs included', companionNoun: 'family' },
   bigfamily: { label: 'Big family / mixed ages', icon: '🏡', hint: 'Gran to toddler', companionNoun: 'family' },
-  work: { label: 'Work crew / other', icon: '💼', hint: 'Colleagues, clubs, cousins', companionNoun: 'teammates' },
+  work: { label: 'Work group / other', icon: '💼', hint: 'Colleagues, clubs, cousins', companionNoun: 'teammates' },
 };
 
 /** What happens to adults / kids when a group type is picked. */

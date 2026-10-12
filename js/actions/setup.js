@@ -142,7 +142,7 @@ export const setupActions = {
       role: 'lead',
     });
     navigate('invite');
-    showToast('Trip created. Time to summon the crew.');
+    showToast('Trip created. Time to summon the group.');
   },
 
   copyInviteLink() {

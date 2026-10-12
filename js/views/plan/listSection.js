@@ -85,7 +85,7 @@ export const listSection = (sectionId, plan, destination) => {
   return `
     <div class="group confirmed">
       <div class="group-head"><span class="group-badge">✓ On your plan</span><b class="group-count">${added.length}</b>
-        <span class="group-hint">Confirmed — the crew can vote on these</span></div>
+        <span class="group-hint">Confirmed — the group can vote on these</span></div>
       ${
         added.length
           ? `<div class="igrid">${added.map((item, i) => itemCard(sectionId, item, i)).join('')}</div>`

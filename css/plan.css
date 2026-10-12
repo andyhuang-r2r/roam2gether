@@ -437,21 +437,6 @@
 .switch.on i {
   left: 23px;
 }
-.note-in {
-  width: 100%;
-  margin-top: 16px;
-  border: 0;
-  border-top: 1px dashed var(--line);
-  outline: 0;
-  padding: 12px 4px 2px;
-  font-size: 15px;
-  min-height: 46px;
-  resize: vertical;
-  background: transparent;
-}
-.note-in:focus {
-  background: #fffdf2;
-}
 .dgrid2 {
   display: grid;
   gap: 12px;
@@ -678,11 +663,57 @@
 .trip-flights {
   padding: 20px 26px 26px;
 }
+.trip-people-narrow {
+  display: none;
+}
 @media (max-width: 600px) {
   .trip-hero,
   .trip-flights {
-    padding-left: 18px;
-    padding-right: 18px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .trip-hero {
+    min-height: 0;
+    gap: 28px;
+    padding-top: 16px;
+    padding-bottom: 18px;
+  }
+  .trip-top {
+    flex-wrap: nowrap;
+  }
+  .trip-back {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+  .back-long {
+    display: none;
+  }
+  .trip-actions {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .trip-people-wide {
+    display: none;
+  }
+  .trip-people-narrow {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .titlein {
+    font-size: 26px;
+    margin: 2px -10px;
+    text-overflow: ellipsis;
+  }
+  .trip-facts {
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .trip-facts span {
+    padding: 5px 11px;
+    font-size: 13px;
+  }
+  .fact-place {
+    display: none;
   }
 }
 

@@ -29,7 +29,7 @@ export const createInitialState = () => ({
   trip: deepClone(DEFAULT_TRIP), // the created trip
   draft: null, // trip being edited in the setup flow
   me: createInitialMe(),
-  crewReplied: false, // seeded crew have "answered"
+  crewReplied: false, // seeded group have "answered"
   lateArrivals: [], // [{ name }]
   invitedEmails: [], // masked emails
   lockedShortlist: null, // destination ids the Trip Lead limited the vote to

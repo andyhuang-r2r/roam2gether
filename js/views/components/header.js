@@ -8,7 +8,7 @@ const PARTICIPANT_ROUTES = ['join', 'quiz', 'mini', 'details', 'results'];
 /** Preview banner shown while viewing as a participant. */
 const participantBanner = () =>
   state.role === 'participant' && PARTICIPANT_ROUTES.includes(state.route)
-    ? `<div class="banner">👀 Participant view — what your crew sees
+    ? `<div class="banner">👀 Participant view — what your group sees
          <button data-action="exitPreview">Back to Trip Lead</button></div>`
     : '';
 
@@ -35,7 +35,7 @@ export const header = () => {
     <header class="top">
       <div class="wrap topin">
         <a class="wm" data-action="goHome"><span>Rome<b>2</b>Rio</span> <span class="feat">roam2gether</span></a>
-        <nav class="nav">
+        <nav class="nav ${state.route === 'plan' ? 'nav-on-plan' : ''}">
           <button class="navlink" data-action="planTrip">Plan your trip</button>
           <button class="btn btn-ghost btn-sm" data-action="toggleTripMenu">My trips</button>
           ${avatar(you, 'sm')}

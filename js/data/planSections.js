@@ -15,7 +15,7 @@ export const PLAN_SECTIONS = [
     emoji: '🗓️',
     subtitle: 'Pick the sweet spot for weather, crowds and price',
   },
-  { id: 'stay', tab: 'Accommodation', title: 'Accommodation', mode: 'hotel', subtitle: 'Where the crew sleeps' },
+  { id: 'stay', tab: 'Accommodation', title: 'Accommodation', mode: 'hotel', subtitle: 'Where the group sleeps' },
   { id: 'do', tab: 'Things to do', title: 'Things to do', emoji: '✨', subtitle: 'The stuff you’ll talk about later' },
   {
     id: 'eat',

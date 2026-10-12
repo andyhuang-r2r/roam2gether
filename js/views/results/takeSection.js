@@ -14,7 +14,7 @@ export const buildTakeaways = (stats, ranked) => {
   const multiShare = stats.multiBaseCount / stats.count;
   takeaways.push(
     multiShare < 0.5
-      ? `A two-centre trip may frustrate the slow-travel crew — ${stats.singleBaseCount} of ${stats.count} want one perfect place. Pick a base and day-trip.`
+      ? `A two-centre trip may frustrate the slow-travel group — ${stats.singleBaseCount} of ${stats.count} want one perfect place. Pick a base and day-trip.`
       : `${stats.multiBaseCount} of ${stats.count} are up for a multi-stop trip, so a two-centre route is fair game.`,
   );
 

@@ -37,5 +37,5 @@ export const whenSection = (plan, destination) => {
   return `
     <div class="rec">✨ <b>roam2gether suggests ${best.map((m) => MONTHS[m]).join(' & ')}.</b> ${season.note}. ${lockedNote}</div>
     <div class="months">${MONTHS.map((_, month) => monthButton(month, season, plan, best)).join('')}</div>
-    <div class="muted" style="font-size:13px;margin-top:8px">● price level · crew can tap months to show what works. ${shortlisted}</div>`;
+    <div class="muted" style="font-size:13px;margin-top:8px">● price level · the group can tap months to show what works. ${shortlisted}</div>`;
 };

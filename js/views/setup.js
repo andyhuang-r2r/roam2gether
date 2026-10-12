@@ -19,7 +19,7 @@ import { describeCrew, describeOrigins, describeTiming } from '../logic/tripSumm
 import { header } from './components/header.js';
 import { shareCard } from './components/shareCard.js';
 
-const STEP_TITLES = ['The crew', 'The starting point', 'The time situation', 'The basics', 'All set?'];
+const STEP_TITLES = ['The group', 'The starting point', 'The time situation', 'The basics', 'All set?'];
 const LAST_INPUT_STEP = 4;
 const SUMMARY_STEP = 5;
 
@@ -277,13 +277,13 @@ const summaryStep = (draft) => `
   <h1>Looking good, ${esc(draft.lead)}.</h1>
   <div class="card">
     <div class="sum">
-      ${summaryRow(TRIP_TYPES[draft.type].icon, 'Crew', `${TRIP_TYPES[draft.type].label} · ${describeCrew(draft)}`)}
+      ${summaryRow(TRIP_TYPES[draft.type].icon, 'Group', `${TRIP_TYPES[draft.type].label} · ${describeCrew(draft)}`)}
       ${summaryRow('🛫', 'Leaving from', describeOrigins(draft))}
       ${summaryRow('🗓️', 'Timing', describeTiming(draft))}
       ${summaryRow('💸', 'Budget feel', draft.budget)}
       ${draft.nonNegotiable ? summaryRow('🔒', 'Non-negotiable', draft.nonNegotiable) : ''}
     </div>
-    <p class="muted" style="margin-top:18px;font-size:15px">Next, roam2gether sends your crew ten tiny dilemmas — so you don’t have to chase anyone for an opinion.</p>
+    <p class="muted" style="margin-top:18px;font-size:15px">Next, roam2gether sends your group ten tiny dilemmas — so you don’t have to chase anyone for an opinion.</p>
   </div>`;
 
 /* ---------- page ---------- */
@@ -292,7 +292,7 @@ const STEP_RENDERERS = [crewStep, startingPointStep, timingStep, basicsStep, sum
 
 const nextButton = (step, draft) => {
   if (step === SUMMARY_STEP)
-    return '<button class="btn btn-pink" data-action="createTrip">Create trip & invite the crew</button>';
+    return '<button class="btn btn-pink" data-action="createTrip">Create trip & invite the group</button>';
   const needsEndDate = step === 3 && draft.timing === 'locked' && !draft.dates.end;
   return `<button class="btn btn-pink" data-action="nextStep" ${needsEndDate ? 'disabled' : ''}>${step === LAST_INPUT_STEP ? 'Review my trip' : 'Next'} →</button>`;
 };

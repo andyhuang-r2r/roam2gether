@@ -6,7 +6,6 @@
  * {
  *   title, shortlistedMonths: number[],
  *   items: { stay: Item[], do: Item[], eat: Item[], move: Item[] },
- *   notes: { [sectionId]: string },
  *   priceAlert: { threshold, channels: ('email'|'app')[], simulatedDrop } — on when any channel is set,
  *   itinerary: null | { days: Day[], bookings: Booking[] },
  *   activity: { who, text, when }[],
@@ -75,11 +74,10 @@ export const createPlan = (destination) => {
     shortlistedMonths: lockedStart ? [lockedStart.getMonth()] : [],
     items: {
       stay: [makeItem('stay', content.stay[0], TRIP_LEAD_NAME)],
-      do: [makeItem('do', content.do[0], TRIP_LEAD_NAME)],
+      do: [], // left empty on purpose so the empty state shows
       eat: [makeItem('eat', content.eat[0], TRIP_LEAD_NAME)],
       move: [],
     },
-    notes: {},
     priceAlert: {
       threshold: defaultAlertThreshold(destination, trip),
       channels: [],
@@ -112,6 +110,14 @@ export const ensurePlan = (destination) => {
   });
   Object.assign(saved.items, { ...fresh.items, ...saved.items });
   Object.assign(saved.priceAlert, { ...fresh.priceAlert, ...saved.priceAlert });
+  // Older saves pre-filled "Things to do" with a sample item; clear it once so the section starts empty.
+  if (!saved.clearedSeedDo) {
+    const sample = getPlanContent(destination).do[0]?.name;
+    saved.items.do = (saved.items.do ?? []).filter(
+      (item) => !(item.name === sample && item.addedBy === TRIP_LEAD_NAME && item.votes?.length <= 1),
+    );
+    saved.clearedSeedDo = true;
+  }
   // Older saves had an on/off switch plus channels; now the channels alone say whether the alert is on.
   if ('enabled' in saved.priceAlert) {
     if (!saved.priceAlert.enabled) saved.priceAlert.channels = [];

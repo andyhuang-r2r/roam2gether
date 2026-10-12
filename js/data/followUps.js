@@ -108,7 +108,7 @@ export const FOLLOW_UP_QUESTIONS = {
       {
         id: 'why',
         type: 'choice',
-        eyebrow: 'About the crew',
+        eyebrow: 'About the group',
         question: 'What is the group really travelling for?',
         options: [
           ['A birthday / celebration', '🎂'],
@@ -120,7 +120,7 @@ export const FOLLOW_UP_QUESTIONS = {
       {
         id: 'together',
         type: 'choice',
-        eyebrow: 'About the crew',
+        eyebrow: 'About the group',
         question: 'How much group time is the correct amount?',
         options: [
           ['All together', '👯'],

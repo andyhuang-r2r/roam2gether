@@ -58,3 +58,29 @@
   text-decoration: underline;
   font-weight: 500;
 }
+
+@media (max-width: 520px) {
+  .topin {
+    height: 56px;
+    gap: 8px;
+  }
+  .wm {
+    font-size: 20px;
+    gap: 6px;
+  }
+  .feat {
+    font-size: 9px;
+    padding: 3px 7px;
+  }
+  .nav {
+    gap: 8px;
+  }
+  .navlink {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  /* "Plan your trip" is redundant while you're already planning */
+  .nav-on-plan .navlink {
+    display: none;
+  }
+}
