@@ -19,7 +19,7 @@ import { listSection } from './listSection.js';
 import { whenSection } from './whenSection.js';
 import { flightsSection } from './flightsSection.js';
 import { daysSection } from './daysSection.js';
-import { addPlaceBar, addPlaceWidget } from './addPlaceBar.js';
+import { sectionAd } from './ads.js';
 
 /* ---------- header ---------- */
 
@@ -71,6 +71,9 @@ const tripCard = (plan, destination) => {
 
 /* ---------- sections (stacked, no tabs) ---------- */
 
+/** Sections whose content isn't a card grid get their ad underneath instead. */
+const AD_AFTER_BODY = ['when'];
+
 const sectionBody = (sectionId, plan, destination) => {
   if (sectionId === 'when') return whenSection(plan, destination);
   if (sectionId === 'days') return daysSection(plan);
@@ -83,15 +86,14 @@ const sectionIcon = (section) =>
     : `<span class="sico soft">${section.emoji}</span>`;
 
 const planSection = (section, plan, destination) => {
-  const count = LIST_SECTIONS.includes(section.id) ? plan.items[section.id].length : null;
   return `
     <section class="psec" id="sec-${section.id}">
       <div class="shead">
         ${sectionIcon(section)}
-        <h2>${esc(section.title)}${count ? ` <span class="pill">${count}</span>` : ''}${section.isAi ? ` ${aiStar()}` : ''}</h2>
+        <h2>${esc(section.title)}${section.isAi ? ` ${aiStar()}` : ''}</h2>
       </div>
       <div class="pbody">
-        ${sectionBody(section.id, plan, destination)}
+        ${sectionBody(section.id, plan, destination)}${AD_AFTER_BODY.includes(section.id) ? sectionAd(section.id, destination, { wide: true }) : ''}
       </div>
     </section>`;
 };
@@ -114,17 +116,6 @@ const activityPanel = (plan) =>
        </aside>`
     : '';
 
-/* ---------- floating "Plan for me" widget (a mini version of the bar) ---------- */
-
-/** The widget only shows once the "Plan for me" bar has scrolled out of view. */
-setInterval(() => {
-  const fab = document.querySelector('#planFab');
-  const bar = document.querySelector('#addPlaceBar');
-  if (!fab || !bar) return;
-  const { top, bottom } = bar.getBoundingClientRect();
-  fab.classList.toggle('show', bottom < 0 || top > window.innerHeight);
-}, 250);
-
 export const planView = () => {
   const destination = currentDestination();
   const plan = currentPlan();
@@ -134,11 +125,9 @@ export const planView = () => {
       <div class="wrap plan">
         <main class="doc">
           ${tripCard(plan, destination)}
-          ${addPlaceBar(destination)}
           ${allSections(plan, destination)}
         </main>
       </div>
     </div>
-    ${addPlaceWidget()}
     ${activityPanel(plan)}`;
 };

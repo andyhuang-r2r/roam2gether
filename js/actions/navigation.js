@@ -29,6 +29,13 @@ export const navigationActions = {
     ui.tripMenuOpen = false;
     startSetup();
   },
+  /** "My trips" opens the dashboard of every saved trip. */
+  openTrips() {
+    ui.tripMenuOpen = false;
+    ui.profileMenuOpen = false;
+    state.role = 'lead';
+    navigate('trips');
+  },
   openCurrentTrip() {
     ui.tripMenuOpen = false;
     ui.profileMenuOpen = false;
@@ -71,6 +78,7 @@ export const navigationActions = {
   },
   playAsYourself() {
     state.role = 'participant';
+    delete state.me.generatedQuiz; // the standard ten dilemmas
     Object.assign(state.me, { questionIndex: 0, answers: [], done: false });
     navigate('join');
   },
@@ -93,7 +101,10 @@ export const navigationActions = {
       state.draft = deepClone(state.trip);
       state.setupStep = 1;
     }
-    if (route === 'quiz') state.me.questionIndex = 0;
+    if (route === 'quiz') {
+      state.me.questionIndex = 0;
+      delete state.me.generatedQuiz;
+    }
     if (route === 'results') return showResultsAsLead();
     if (route === 'plan') {
       state.crewReplied = true;

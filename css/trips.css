@@ -1,0 +1,160 @@
+/* ---------- My trips dashboard ---------- */
+.trips {
+  padding: 36px 0 80px;
+}
+.trips-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+.trips-head h1 {
+  margin: 6px 0 4px;
+}
+.tgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+.tcard {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+.tcard-scene {
+  position: relative;
+  height: 130px;
+  overflow: hidden;
+  background: var(--card);
+}
+.tcard-scene svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tstatus {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  padding: 5px 11px;
+  border-radius: 99px;
+  font: 700 12px Inter, sans-serif;
+  background: #fff;
+  color: var(--ink, #222);
+}
+.tstatus.plan {
+  background: var(--pink);
+  color: #fff;
+}
+.tstatus.ready {
+  background: #e6f7f2;
+  color: #0a7a62;
+}
+.tstatus.wait {
+  background: #fff3e6;
+  color: #b4560b;
+}
+.tstatus.done {
+  background: var(--card2);
+  color: var(--muted);
+}
+.tcard-body {
+  padding: 16px 18px 18px;
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.tcard-body h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.tcard-place {
+  font-weight: 600;
+  font-size: 14px;
+}
+.tcard-facts {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 13px;
+}
+.tcard-facts span + span::before {
+  content: '·';
+  margin-right: 8px;
+}
+.tcard-body .btn {
+  margin-top: 6px;
+}
+.tnew {
+  border: 2px dashed var(--line);
+  background: transparent;
+  box-shadow: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 28px 18px;
+  min-height: 200px;
+  cursor: pointer;
+}
+.tnew:hover {
+  border-color: var(--pink);
+  background: var(--pink-t);
+}
+.tplus {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--pink-t);
+  color: var(--pink);
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+}
+@media (max-width: 600px) {
+  .trips {
+    padding-top: 24px;
+  }
+  .trips-head .btn {
+    width: 100%;
+  }
+}
+.tcard-scene:has(.topen) {
+  background: linear-gradient(135deg, var(--pink-t), #fff3f9);
+}
+.topen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+}
+.tcard-scene:has(.topen) .trip-shade {
+  display: none;
+}
+.tactions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 6px;
+}
+.tactions .btn,
+.tcard-body .tactions .btn {
+  margin-top: 0;
+}
+.tquiz-done {
+  font: 700 13px Inter, sans-serif;
+  color: #0a7a62;
+  background: #e6f7f2;
+  border-radius: 99px;
+  padding: 7px 12px;
+}

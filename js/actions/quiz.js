@@ -2,7 +2,8 @@
 import { state, ui, saveState } from '../state/store.js';
 import { setByPath } from '../lib/utils.js';
 import { navigate } from '../render.js';
-import { QUESTION_COUNT } from '../data/quiz.js';
+import { QUESTION_COUNT, QUIZ_QUESTIONS } from '../data/quiz.js';
+import { generateQuiz } from '../data/quizVariants.js';
 import { getFollowUpSteps } from '../logic/followUps.js';
 import { commit, numberData } from './shared.js';
 
@@ -53,7 +54,22 @@ export const quizActions = {
       commit();
     } else navigate('join');
   },
+  /** The AI-written survey: a fresh set of questions every time it's started. */
+  startGeneratedQuiz(el) {
+    if (ui.generatingQuiz) return;
+    ui.generatingQuiz = true;
+    el.innerHTML = '✨ Writing a quiz for your group…';
+    el.disabled = true;
+    setTimeout(() => {
+      ui.generatingQuiz = false;
+      state.role = 'participant';
+      Object.assign(state.me, { questionIndex: 0, answers: [], done: false });
+      state.me.generatedQuiz = generateQuiz(QUIZ_QUESTIONS, state.me.generatedQuiz);
+      navigate('join');
+    }, 1300);
+  },
   redoQuiz() {
+    if (state.me.generatedQuiz) state.me.generatedQuiz = generateQuiz(QUIZ_QUESTIONS, state.me.generatedQuiz);
     state.me.questionIndex = 0;
     navigate('quiz');
   },

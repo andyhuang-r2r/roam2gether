@@ -38,7 +38,7 @@ export const profileMenu = () =>
           <div class="profile-card">${portrait(48)}
             <div><b>${DUMMY_USER.name}</b><small>${DUMMY_USER.email}</small><small>${DUMMY_USER.role}</small></div>
           </div>
-          <button data-action="openCurrentTrip">🧳 My trips</button>
+          <button data-action="openTrips">🧳 My trips</button>
           <button data-action="mockAccount" data-value="Account settings">⚙️ Account settings</button>
           <button data-action="mockAccount" data-value="Notification preferences">🔔 Notification preferences</button>
           <button data-action="mockAccount" data-value="Sign out">↩ Sign out</button>

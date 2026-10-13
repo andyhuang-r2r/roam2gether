@@ -1,0 +1,63 @@
+/**
+ * Dates on planner items: a stay has check-in / check-out, things to do have a
+ * day (or a few), meals and transport have a day. Items are sorted by date.
+ */
+import { addDays, countDays, formatDay, formatWeekdayDay, parseIso, toIso, TODAY_ISO } from '../lib/dates.js';
+import { state } from '../state/store.js';
+
+const DEFAULT_TRIP_DAYS = 5;
+
+/** The trip's dates: the locked dates, or a window in the first shortlisted month. null if unknown. */
+export const tripWindow = (plan) => {
+  const { trip } = state;
+  if (trip.timing === 'locked' && trip.dates?.start) {
+    return { start: trip.dates.start, end: trip.dates.end || trip.dates.start };
+  }
+  const month = plan.shortlistedMonths[0];
+  if (month == null) return null;
+  const thisYear = parseIso(TODAY_ISO).getFullYear();
+  const year = toIso(thisYear, month, 10) > TODAY_ISO ? thisYear : thisYear + 1;
+  const start = toIso(year, month, 10);
+  return { start, end: addDays(start, (trip.days || DEFAULT_TRIP_DAYS) - 1) };
+};
+
+/** Sensible starting dates for the nth item of a section, or null when the trip dates aren't known. */
+export const defaultDates = (sectionId, index, plan) => {
+  const window = tripWindow(plan);
+  if (!window) return null;
+  const days = countDays(window.start, window.end);
+  if (sectionId === 'stay') return { start: window.start, end: window.end };
+  const offset = sectionId === 'eat' ? index + 1 : index;
+  const day = addDays(window.start, offset % days);
+  return { start: day, end: day };
+};
+
+/** Label for the field inputs of a section. */
+export const dateFields = (sectionId) =>
+  sectionId === 'stay'
+    ? { start: 'Check-in', end: 'Check-out', hasEnd: true }
+    : sectionId === 'do'
+      ? { start: 'From', end: 'To', hasEnd: true }
+      : { start: 'Date', end: '', hasEnd: false };
+
+/** "Fri 12 Mar – Tue 16 Mar · 4 nights", "Fri 12 Mar", or '' when there is no start date. */
+export const describeDates = (sectionId, dates) => {
+  if (!dates?.start) return '';
+  if (!dates.end || dates.end === dates.start) return formatWeekdayDay(dates.start);
+  const span = countDays(dates.start, dates.end) - (sectionId === 'stay' ? 1 : 0);
+  const unit = sectionId === 'stay' ? 'night' : 'day';
+  return `${formatWeekdayDay(dates.start)} – ${formatWeekdayDay(dates.end)} · ${span} ${unit}${span === 1 ? '' : 's'}`;
+};
+
+/** Indexes of `items` ordered by start date; undated items keep their order at the end. */
+export const orderByDate = (items) =>
+  items
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const aDate = a.item.dates?.start || '';
+      const bDate = b.item.dates?.start || '';
+      if (aDate && bDate) return aDate.localeCompare(bDate) || a.index - b.index;
+      if (aDate) return -1;
+      if (bDate) return 1;
+      return a.index - b.index;
+    });

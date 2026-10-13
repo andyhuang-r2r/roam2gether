@@ -24,6 +24,7 @@ import { detailsView } from './views/details.js';
 import { loadingView, LOADING_MESSAGES } from './views/loading.js';
 import { resultsView } from './views/results/resultsPage.js';
 import { planView } from './views/plan/planPage.js';
+import { tripsView } from './views/trips.js';
 import { modalView } from './views/modals.js';
 import { demoNav } from './views/components/demoNav.js';
 
@@ -71,6 +72,7 @@ registerViews({
   loading: withDemoNav(loadingView),
   results: withDemoNav(resultsView),
   plan: withDemoNav(planScreen),
+  trips: withDemoNav(tripsView),
 });
 
 registerModalRenderer(modalView);
@@ -170,12 +172,9 @@ registerInputHandlers({
   addPlace: {
     input: (el) => {
       ui.placeText = el.value;
-      // the page bar and the floating widget share one text
-      document.querySelectorAll('[data-input=addPlace]').forEach((input) => {
-        if (input !== el) input.value = el.value;
-      });
+      ui.placeSection = el.dataset.section;
     },
-    enter: () => runAction('fillPlaceDetails'),
+    enter: (el) => runAction('fillPlaceDetails', el),
   },
 });
 

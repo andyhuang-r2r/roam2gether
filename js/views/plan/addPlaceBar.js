@@ -5,7 +5,7 @@
 import { ui } from '../../state/store.js';
 import { esc } from '../../lib/utils.js';
 import { aiStar } from '../../lib/icons.js';
-import { PLACE_EXAMPLES, SECTION_LABELS } from '../../data/planSections.js';
+import { SECTION_LABELS } from '../../data/planSections.js';
 
 const loadingCard = () => `
   <div class="place-draft"><div class="shimmer"></div><b>${aiStar()} Planning it for you…</b>
@@ -29,48 +29,27 @@ const draftCard = (place) => `
     </div>
   </div>`;
 
-export const addPlaceBar = (destination) => {
-  const draft = ui.placeDraft;
-  const examples = PLACE_EXAMPLES[destination.id] ?? PLACE_EXAMPLES.default;
-  let result = '';
-  if (draft?.isLoading) result = loadingCard();
-  else if (draft?.place) result = draftCard(draft.place);
-  return `
-    <div class="add-place" id="addPlaceBar">
-      <div class="add-place-row">
-        ${aiStar(22)}
-        <input id="addPlaceInput" data-input="addPlace" placeholder="Paste a link, restaurant, event or place…" value="${esc(ui.placeText)}" autocomplete="off">
-        <button class="btn btn-pink btn-sm" data-action="fillPlaceDetails">${aiStar(16)} Plan for me</button>
-      </div>
-      <div class="chips" style="margin-top:10px">
-        <span class="muted" style="font-size:13px">Try:</span>
-        ${examples.map((example) => `<button class="chip sm" data-action="tryPlaceExample" data-value="${esc(example)}">${esc(example)}</button>`).join('')}
-      </div>
-      ${result}
-    </div>`;
+const PLACEHOLDERS = {
+  stay: 'Paste a hotel or stay link, or name a place…',
+  do: 'Paste a link or name an activity or attraction…',
+  eat: 'Paste a link or name a restaurant or café…',
+  move: 'Paste a link or name a pass, transfer or ride…',
 };
 
-/**
- * A floating "Plan for me" button, shown once the full bar has scrolled out of view.
- * Clicking it opens a smaller version of the bar (input + results) in its place.
- */
-export const addPlaceWidget = () => {
-  if (!ui.planWidgetOpen) {
-    return `
-      <button class="plan-fab pill" id="planFab" data-action="openPlanWidget" aria-label="Plan for me">${aiStar(20)}<span>Plan for me</span></button>`;
-  }
-  const draft = ui.placeDraft;
+/** A "Plan for me" bar that lives inside one list section and adds to that section. */
+export const sectionPlanBar = (sectionId) => {
+  const active = ui.placeSection === sectionId;
+  const draft = active ? ui.placeDraft : null;
   let result = '';
   if (draft?.isLoading) result = loadingCard();
   else if (draft?.place) result = draftCard(draft.place);
   return `
-    <div class="plan-fab open" id="planFab">
-      <button class="plan-fab-close" data-action="closePlanWidget" aria-label="Close">✕</button>
-      ${result}
+    <div class="add-place" data-section="${sectionId}">
       <div class="add-place-row">
-        ${aiStar(18)}
-        <input id="planWidgetInput" data-input="addPlace" placeholder="Paste a link, restaurant, event or place…" value="${esc(ui.placeText)}" autocomplete="off" aria-label="Plan for me">
-        <button class="btn btn-pink btn-sm" data-action="fillPlaceDetails">Plan for me</button>
+        ${aiStar(22)}
+        <input data-input="addPlace" data-section="${sectionId}" placeholder="${PLACEHOLDERS[sectionId]}" value="${active ? esc(ui.placeText) : ''}" autocomplete="off" aria-label="Plan for me">
+        <button class="btn btn-pink btn-sm" data-action="fillPlaceDetails" data-section="${sectionId}">${aiStar(16)} Plan for me</button>
       </div>
+      ${result}
     </div>`;
 };

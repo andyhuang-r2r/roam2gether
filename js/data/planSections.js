@@ -35,7 +35,7 @@ export const PLAN_SECTIONS = [
     id: 'days',
     tab: 'Day by day',
     title: 'Day by day',
-    emoji: '🧭',
+    mode: 'days',
     subtitle: 'roam2gether builds it from what you’ve added',
     isAi: true,
   },
@@ -56,6 +56,7 @@ export const PLACE_EXAMPLES = {
   default: ['Time Out Market', 'Pastéis de Belém', 'Pena Palace Sintra'],
   penang: ['Gurney Drive hawker', 'Kek Lok Si temple'],
   valencia: ['Mercado Central', 'City of Arts and Sciences'],
+  tokyo: ['Tokyo Disneyland', 'Tsukiji Outer Market', 'Fushimi Inari'],
 };
 
 /** The teammates who "join" the simulated live session. */

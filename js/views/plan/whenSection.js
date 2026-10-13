@@ -20,7 +20,7 @@ const bestMonths = (season) =>
 const monthButton = (month, season, plan, best) => `
   <button class="mo ${plan.shortlistedMonths.includes(month) ? 'on' : ''} ${best.includes(month) ? 'best' : ''}" data-action="togglePlanMonth" data-value="${month}">
     <b>${MONTHS[month]}</b><span>${season.temperature[month]}°</span>
-    <em>${'●'.repeat(season.priceLevel[month])}<u>${'●'.repeat(3 - season.priceLevel[month])}</u></em>
+    <em>${'$'.repeat(season.priceLevel[month])}<u>${'$'.repeat(3 - season.priceLevel[month])}</u></em>
   </button>`;
 
 export const whenSection = (plan, destination) => {
@@ -37,5 +37,5 @@ export const whenSection = (plan, destination) => {
   return `
     <div class="rec">✨ <b>roam2gether suggests ${best.map((m) => MONTHS[m]).join(' & ')}.</b> ${season.note}. ${lockedNote}</div>
     <div class="months">${MONTHS.map((_, month) => monthButton(month, season, plan, best)).join('')}</div>
-    <div class="muted" style="font-size:13px;margin-top:8px">● price level · the group can tap months to show what works. ${shortlisted}</div>`;
+    <div class="muted" style="font-size:13px;margin-top:8px">$ = price level. ${shortlisted}</div>`;
 };

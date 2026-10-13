@@ -12,15 +12,15 @@
 import { createRng } from '../lib/utils.js';
 import { transportPaths } from '../lib/icons.js';
 
-const GR = (id, stops, x2 = 0, y2 = 1) =>
+export const GR = (id, stops, x2 = 0, y2 = 1) =>
   `<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}">${stops.map((s) => `<stop offset="${s[0]}" stop-color="${s[1]}"/>`).join('')}</linearGradient>`;
-const SV = (defs, body) =>
+export const SV = (defs, body) =>
   `<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>${defs}</defs>${body}</svg>`;
-const BG = (id) => `<rect width="400" height="500" fill="url(#${id})"/>`;
-function palm(x, y, c = '#2A1B2E', s = 1) {
+export const BG = (id) => `<rect width="400" height="500" fill="url(#${id})"/>`;
+export function palm(x, y, c = '#2A1B2E', s = 1) {
   return `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 230 C8 150 20 80 40 0" stroke="${c}" stroke-width="9" fill="none" stroke-linecap="round"/><g transform="translate(40 0)" fill="${c}"><path d="M0 0C-50-30-75-20-95 12 -55-8-25-10 0 0Z"/><path d="M0 0C-40-50-20-75 10-80 -5-45-5-20 0 0Z"/><path d="M0 0C40-50 70-45 90-15 55-25 25-20 0 0Z"/><path d="M0 0C50-5 80 20 85 50 55 25 25 15 0 0Z"/><path d="M0 0C-45 0-70 25-70 55-45 30-20 15 0 0Z"/></g></g>`;
 }
-function pine(x, y, s, c) {
+export function pine(x, y, s, c) {
   return `<path d="M${x} ${y - 60 * s}L${x - 22 * s} ${y - 18 * s}H${x - 10 * s}L${x - 30 * s} ${y + 18 * s}H${x + 30 * s}L${x + 10 * s} ${y - 18 * s}H${x + 22 * s}Z" fill="${c}"/>`;
 }
 function houses(seed, y0, cols, n, ww) {
@@ -42,14 +42,14 @@ function houses(seed, y0, cols, n, ww) {
   }
   return o;
 }
-function stars(seed, n, y1) {
+export function stars(seed, n, y1) {
   const r = createRng(seed);
   let o = '';
   for (let i = 0; i < n; i++)
     o += `<circle cx="${r() * 400}" cy="${r() * y1}" r="${0.6 + r() * 1.5}" fill="#fff" opacity="${0.4 + r() * 0.6}"/>`;
   return o;
 }
-function bulbs(y, amp, n, c = '#FFE08A') {
+export function bulbs(y, amp, n, c = '#FFE08A') {
   let o = `<path d="M-10 ${y} Q200 ${y + amp} 410 ${y}" stroke="#2a2220" stroke-width="2" fill="none"/>`;
   for (let i = 0; i <= n; i++) {
     const t = i / n,

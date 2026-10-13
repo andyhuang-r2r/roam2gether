@@ -8,9 +8,11 @@ export const TRANSPORT_COLORS = {
   bus: '#E47225',
   ferry: '#2EBAD3',
   hotel: '#0B91DB',
+  days: '#DE007B',
 };
 
 const TRANSPORT_PATHS = {
+  days: '<circle cx="5.5" cy="5.5" r="2.5"/><circle cx="5.5" cy="12" r="2.5"/><circle cx="5.5" cy="18.5" r="2.5"/><rect x="10.5" y="4" width="10" height="3" rx="1.5"/><rect x="10.5" y="10.5" width="10" height="3" rx="1.5"/><rect x="10.5" y="17" width="7" height="3" rx="1.5"/>',
   plane: '<path d="M21 15.5v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0v5l-8 5v2l8-2.5v4.5l-2 1.5V22l3.5-1 3.5 1v-1.5l-2-1.5V13z"/>',
   train:
     '<path d="M12 2C8 2 4 2.5 4 6v9.5A3.5 3.5 0 0 0 7.5 19L6 20.5V21h2.2l2-2h3.6l2 2H18v-.5L16.5 19a3.5 3.5 0 0 0 3.5-3.5V6c0-3.5-4-4-8-4zM7.5 17a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM11 10H6V6h5zm2 0V6h5v4zm3.5 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>',

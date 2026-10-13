@@ -39,7 +39,7 @@ const enterPlanner = (destinationId) => {
   Object.assign(ui, {
     planAnimate: true,
     activityOpen: false,
-    planWidgetOpen: false,
+    placeSection: null,
     placeDraft: null,
     placeText: '',
     tripMenuOpen: false,
@@ -80,16 +80,6 @@ export const planActions = {
   },
 
   /* ---------- layout ---------- */
-  /** The floating "Plan for me" button opens a mini version of the bar. */
-  openPlanWidget() {
-    ui.planWidgetOpen = true;
-    render();
-    setTimeout(() => document.querySelector('#planWidgetInput')?.focus(), 50);
-  },
-  closePlanWidget() {
-    ui.planWidgetOpen = false;
-    render();
-  },
   openActivity() {
     ui.activityOpen = true;
     render();
@@ -165,21 +155,19 @@ export const planActions = {
   },
 
   /* ---------- AI: fill in the details of a pasted place ---------- */
-  tryPlaceExample(el) {
-    ui.placeText = el.dataset.value;
-    planActions.fillPlaceDetails();
-  },
   fillPlaceDetails(el) {
+    const section = el?.dataset?.section ?? ui.placeSection;
     const input = el?.closest?.('.add-place-row')?.querySelector('input');
     const pasted = (input?.value ?? ui.placeText).trim();
     if (!pasted) return showToast('Paste a link or type a place first.');
     ui.placeText = pasted;
+    ui.placeSection = section;
     ui.placeDraft = { isLoading: true };
     render();
     const destinationId = state.planDestinationId;
     return setTimeout(() => {
       if (!stillOnPlanner(destinationId)) return;
-      ui.placeDraft = { place: draftPlaceFromText(pasted) };
+      ui.placeDraft = { place: { ...draftPlaceFromText(pasted), kind: section } };
       render();
     }, DRAFT_DELAY_MS);
   },
@@ -211,7 +199,7 @@ export const planActions = {
       });
       logActivity(plan, currentUserName(), `added “${place.name}” with AI`);
     }
-    Object.assign(ui, { placeDraft: null, placeText: '', planWidgetOpen: false });
+    Object.assign(ui, { placeDraft: null, placeText: '', placeSection: null });
     commit();
     showToast(existing ? 'Already on the plan — details added.' : 'Added to the plan.');
   },

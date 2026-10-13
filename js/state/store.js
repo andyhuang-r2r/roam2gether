@@ -75,7 +75,7 @@ export const ui = {
   profileMenuOpen: false,
   isPickingAnswer: false, // blocks double taps while the quiz animates
   loadingTimer: null,
-  planWidgetOpen: false, // the floating "Plan for me" widget is expanded
+  placeSection: null, // which section's "Plan for me" bar is in use
   activityOpen: false, // activity slide-out in the planner
   planAnimate: true, // play the entrance animation on the planner
   placeDraft: null, // { isLoading: true } or { place } for the "fill in details" bar

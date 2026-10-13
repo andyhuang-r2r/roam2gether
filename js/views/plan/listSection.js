@@ -4,6 +4,8 @@
  */
 import { aiStar } from '../../lib/icons.js';
 import { bookButton, bookingLabel } from '../../logic/booking.js';
+import { sectionAd } from './ads.js';
+import { sectionPlanBar } from './addPlaceBar.js';
 import { esc } from '../../lib/utils.js';
 import { currentUserName, suggestionsFor } from '../../logic/planner.js';
 import { avatarFor } from '../components/avatar.js';
@@ -57,47 +59,25 @@ const suggestionCard = (sectionId, suggestion, suggestionIndex) => `
   </div>`;
 
 /** A clearly-labelled mock ad, targeted from the trip. Only for stay / do. */
-const adCard = (destination, sectionId) => {
-  const city = destination.name.split(' +')[0];
-  const copy =
-    sectionId === 'stay'
-      ? {
-          headline: `${city}: stay 4–6 nights from ${destination.costLevel > 2 ? '$$$' : '$$'}`,
-          subline: 'Free cancellation on most rooms',
-        }
-      : { headline: `Skip-the-line tickets in ${city}`, subline: 'Instant confirmation on your phone' };
-  return `
-    <div class="scard ad">
-      <span class="adtag">Ad · based on your trip</span>
-      <b>${esc(copy.headline)}</b>
-      <p class="idesc">${copy.subline}</p>
-      <button class="btn btn-ink btn-sm" data-action="openAd">See deals</button>
-    </div>`;
-};
-
 export const listSection = (sectionId, plan, destination) => {
   const added = plan.items[sectionId];
   const addedNames = added.map((item) => item.name);
   const suggestions = suggestionsFor(sectionId, destination)
     .map((suggestion, index) => ({ suggestion, index }))
     .filter(({ suggestion }) => !addedNames.includes(suggestion.name));
-  const showAd = sectionId === 'stay' || sectionId === 'do';
   return `
-    <div class="group confirmed">
-      <div class="group-head"><span class="group-badge">✓ On your plan</span><b class="group-count">${added.length}</b>
-        <span class="group-hint">Confirmed — the group can vote on these</span></div>
+    ${sectionPlanBar(sectionId)}
+    <div class="group-head"><span class="group-badge confirmed-badge">✓ On your plan</span></div>
+    <div class="onplan-box">
       ${
         added.length
           ? `<div class="igrid">${added.map((item, i) => itemCard(sectionId, item, i)).join('')}</div>`
           : '<div class="empty">Nothing on the plan yet. Add from the suggestions below, or use Plan for me.</div>'
       }
     </div>
-    <div class="group suggested">
-      <div class="group-head"><span class="group-badge">${aiStar()} Suggested for you</span>
-        <span class="group-hint">Ideas only — add the ones you like</span></div>
-      <div class="igrid">
-        ${suggestions.map(({ suggestion, index }) => suggestionCard(sectionId, suggestion, index)).join('')}
-        ${showAd ? adCard(destination, sectionId) : ''}
-      </div>
+    <div class="group-head suggested-head"><span class="group-badge">${aiStar()} Suggested for you</span></div>
+    <div class="igrid">
+      ${suggestions.map(({ suggestion, index }) => suggestionCard(sectionId, suggestion, index)).join('')}
+      ${sectionAd(sectionId, destination)}
     </div>`;
 };
