@@ -66,49 +66,59 @@ const NEW_QUESTIONS = [
   [
     { hint: 'Which postcard is yours?', a: ['Hammock between the palms', 'Sunset and nowhere to be'], b: ['Cabin in the snow', 'Fire on, stars out'] },
     { hint: 'Where would the cousins nap?', a: ['A hammock at golden hour', 'Warm sand, warmer drinks'], b: ['A blanket by the stove', 'Snowflakes at the window'] },
+    { hint: 'Pick the mood.', a: ['Barefoot and breezy', 'Hot sand, long shadows'], b: ['Wrapped up and cosy', 'Snow on the roof'] },
   ],
   [
     { hint: 'Pick a street to get lost in.', a: ['A tram through the old town', 'Pastel walls, golden light'], b: ['A lantern-lit temple alley', 'Glowing after dark'] },
     { hint: 'Which one feels like the trip?', a: ['Rattling past old arches', 'Espresso at every corner'], b: ['Paper lanterns overhead', 'Steam, incense, neon'] },
+    { hint: 'Choose your streets.', a: ['Trams and terracotta', 'Old-world charm'], b: ['Lanterns and side-streets', 'Glow, spice and steam'] },
   ],
   [
     { hint: 'What’s outside the window?', a: ['Skyline after dark', 'Lights on in every window'], b: ['A tent under the stars', 'Campfire, lake, silence'] },
     { hint: 'Where do the cousins end up at 10pm?', a: ['Up a tower, looking out', 'The city never really stops'], b: ['Around a fire by the water', 'Stars instead of streetlights'] },
+    { hint: 'Where do you feel at home?', a: ['High above the city', 'Neon, noise and energy'], b: ['Out by the tent', 'Fire, stars and quiet'] },
   ],
   [
     { hint: 'Free day. Where is everyone?', a: ['Snorkels and sailboats', 'Clear water, bright fish'], b: ['On the trail to the top', 'A flag waiting at the summit'] },
     { hint: 'Choose the adventure.', a: ['Out on the turquoise bay', 'Salt in your hair'], b: ['Up the ridge path', 'Burning legs, big views'] },
+    { hint: 'Pick your day out.', a: ['Out on the water', 'Fins, sails and salt'], b: ['Up in the hills', 'Boots, views and bragging rights'] },
   ],
   [
     { hint: 'Your perfect hour?', a: ['Croissant by the window', 'Morning light, no alarm'], b: ['Neon after midnight', 'Disco ball, one more song'] },
     { hint: 'When does the fun start?', a: ['Slow, sunlit breakfast', 'Take the whole morning'], b: ['Long after the sun goes down', 'The dance floor wins'] },
+    { hint: 'Which hour is yours?', a: ['The sunlit breakfast hour', 'Pastry first, plans later'], b: ['The after-midnight hour', 'Lights low, music loud'] },
   ],
   [
     { hint: 'Dinner plan?', a: ['Night-market cart', 'Smoky skewers, strings of lights'], b: ['A candlelit feast', 'Wine, laughter, seconds'] },
     { hint: 'The meal the group remembers is…', a: ['Eaten standing, from a paper tray', 'Hot, cheap, perfect'], b: ['Passed around a long table', 'Three courses and a toast'] },
+    { hint: 'What’s for dinner?', a: ['Whatever’s sizzling at the cart', 'Hot, fast and glorious'], b: ['The long candlelit table', 'Everyone stays for dessert'] },
   ],
   [
     { hint: 'The plan, as a picture.', a: ['Every hour scheduled', 'Colour-coded and ticked off'], b: ['A paper plane, no plan', 'Drift now, decide later'] },
     { hint: 'How do you travel?', a: ['With a checklist', 'Nothing left to chance'], b: ['With the wind', 'Wherever the day lands'] },
+    { hint: 'How do you like your days?', a: ['Planned to the minute', 'Every box ticked'], b: ['Drifting on a breeze', 'See where it lands'] },
   ],
   [
     { hint: 'Check in where?', a: ['A boutique with a great door', 'Brass, plants and a doorman'], b: ['A courtyard of lanterns', 'Tiles, arches and mint tea'] },
     { hint: 'Home base for the group?', a: ['Polished and perfectly kept', 'Fresh towels and a lobby bar'], b: ['Warm, old and full of stories', 'Wake up to a fountain'] },
+    { hint: 'Your base for the week?', a: ['A smart little hotel', 'Great door, better lobby'], b: ['A lantern-lit courtyard', 'Warm tiles and mint tea'] },
   ],
   [
     { hint: 'How do you pack?', a: ['One suitcase, one spot', 'Unpack once and breathe'], b: ['Window seat, new view each hour', 'A place a day, trains between'] },
     { hint: 'Trip rhythm?', a: ['Stay put by the sea', 'The same sunset, nightly'], b: ['Keep the train moving', 'See three towns in a week'] },
+    { hint: 'Packing style?', a: ['One bag, one beach', 'Stay and soak it up'], b: ['Train ticket in hand', 'New view every hour'] },
   ],
   [
     { hint: 'Which photo are you taking?', a: ['The famous landmark', 'Everyone’s postcard shot'], b: ['The little door down the alley', 'Only locals know it'] },
     { hint: 'The cousins’ best story is…', a: ['Standing under the icon', 'It lived up to the hype'], b: ['The hidden doorway', '“How did you find this?”'] },
+    { hint: 'Your best photo?', a: ['The icon everyone knows', 'Crowds and all'], b: ['The door nobody noticed', 'Down the alley, up the stairs'] },
   ],
 ].map((slot, i) =>
   slot.map((q) => ({ ...q, scenes: QUIZ_SCENE_PAIRS[i] })),
 );
 
-/** Per slot: the picture-led questions, plus one reworded classic. */
-const OPTIONS = QUIZ_VARIANTS.map((variants, slot) => [...NEW_QUESTIONS[slot], variants[0]]);
+/** Per slot: the picture-led questions (every one uses the new illustrations). */
+const OPTIONS = NEW_QUESTIONS;
 
 export const QUIZ_PROMPTS = [
   'Cousins edition: this or that?',
