@@ -52,6 +52,7 @@ const adCopy = (sectionId, city, destination) =>
 
 /** Card version for the suggestion grids. `wide` stretches it across the section. */
 export const sectionAd = (sectionId, destination, { wide = false } = {}) => {
+  if (destination.tbd) return ''; // ads are targeted from the destination
   const copy = adCopy(sectionId, destination.name.split(' +')[0], destination);
   return `
     <div class="scard ad ${wide ? 'wide' : ''}">

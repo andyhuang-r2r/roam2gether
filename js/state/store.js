@@ -8,6 +8,7 @@
  */
 import { DEFAULT_TRIP } from '../data/tripOptions.js';
 import { deepClone } from '../lib/utils.js';
+import { createCousins } from '../data/cousins.js';
 
 const STORAGE_KEY = 'roameo.proto.v2';
 
@@ -35,15 +36,21 @@ export const createInitialState = () => ({
   lockedShortlist: null, // destination ids the Trip Lead limited the vote to
   votes: {}, // { [personId]: destinationId } — real votes only
   whatIf: 'brief', // 'brief' | 'locked' | 'dreaming'
-  user: null, // mock login: { name, email }
+  user: { name: 'Maya', email: 'maya.chen@example.com' }, // always signed in (mocked); the app never asks for a login
   plans: {}, // planner state keyed by destination id
   planDestinationId: null,
+  activeTrip: 'maya', // which trip the planner is showing: 'maya' | 'cousins'
+  cousins: createCousins(), // the second trip (its own crew, quiz answers, destination and plan)
 });
 
 const loadState = () => {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved?.version === 2) return { ...createInitialState(), ...saved.state };
+    if (saved?.version === 2) {
+      const merged = { ...createInitialState(), ...saved.state };
+      merged.user ??= createInitialState().user; // older saves from before the always-signed-in change
+      return merged;
+    }
   } catch {
     /* storage unavailable or corrupt — start fresh */
   }

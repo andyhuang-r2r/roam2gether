@@ -7,7 +7,7 @@ import { state, ui, saveState } from '../state/store.js';
 import { render } from '../render.js';
 import { showToast } from '../lib/toast.js';
 import { getPlanContent } from '../data/planContent.js';
-import { currentDestination, currentPlan, logActivity, makeItem } from '../logic/planner.js';
+import { activeDestinationId, currentDestination, currentPlan, logActivity, makeItem, simulatedTeammates } from '../logic/planner.js';
 
 /** Redraw unless the user is typing (so we don't steal focus). */
 const redrawUnlessTyping = () => {
@@ -17,6 +17,7 @@ const redrawUnlessTyping = () => {
 
 /** Add a suggestion on behalf of a teammate (if it isn't already there). */
 const addFor = (plan, who, sectionId, suggestion) => {
+  if (currentDestination().tbd) return; // no destination, nothing to suggest yet
   if (!suggestion || plan.items[sectionId].some((item) => item.name === suggestion.name)) return;
   plan.items[sectionId].push(makeItem(sectionId, suggestion, who));
   logActivity(plan, who, `added “${suggestion.name}”`);
@@ -30,33 +31,35 @@ export const startPlanSimulation = () => {
   plan.simulationStarted = true;
   saveState();
 
-  const destinationId = state.planDestinationId;
+  const destinationId = activeDestinationId();
+  const tripId = state.activeTrip;
+  const [first, second, third] = simulatedTeammates();
   const content = getPlanContent(currentDestination());
 
   const schedule = (delayMs, step) =>
     setTimeout(() => {
-      if (state.route !== 'plan' || state.planDestinationId !== destinationId) return;
+      if (state.route !== 'plan' || state.activeTrip !== tripId || activeDestinationId() !== destinationId) return;
       step();
       saveState();
       redrawUnlessTyping();
     }, delayMs);
 
   schedule(3500, () => {
-    plan.presence = [{ who: 'Jordan' }];
-    logActivity(plan, 'Jordan', 'joined the plan');
-    showToast('Jordan joined the plan');
+    plan.presence = [{ who: first }];
+    logActivity(plan, first, 'joined the plan');
+    showToast(`${first} joined the plan`);
   });
-  schedule(7000, () => addFor(plan, 'Jordan', 'do', content.do[1]));
+  schedule(7000, () => addFor(plan, first, 'do', content.do[1]));
   schedule(11000, () => {
-    plan.presence = [{ who: 'Jordan' }, { who: 'Priya' }];
-    addFor(plan, 'Priya', 'eat', content.eat[1]);
+    plan.presence = [{ who: first }, { who: second }];
+    addFor(plan, second, 'eat', content.eat[1]);
   });
   schedule(16000, () => {
-    plan.presence = [{ who: 'Theo' }, { who: 'Priya' }];
+    plan.presence = [{ who: third }, { who: second }];
     const hotel = plan.items.stay[0];
-    if (hotel && !hotel.votes.includes('Theo')) {
-      hotel.votes.push('Theo');
-      logActivity(plan, 'Theo', `voted for “${hotel.name}”`);
+    if (hotel && !hotel.votes.includes(third)) {
+      hotel.votes.push(third);
+      logActivity(plan, third, `voted for “${hotel.name}”`);
     }
   });
 };

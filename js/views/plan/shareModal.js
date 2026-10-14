@@ -1,11 +1,10 @@
-import { state } from '../../state/store.js';
 import { esc } from '../../lib/utils.js';
 import { getCrew } from '../../logic/crew.js';
-import { currentPlan, currentUserName } from '../../logic/planner.js';
+import { activeDestinationId, currentPlan, currentUserName } from '../../logic/planner.js';
 import { avatarFor } from '../components/avatar.js';
 import { sheet } from '../components/sheet.js';
 
-export const planShareLink = () => `rome2rio.com/plan/${state.planDestinationId}-k7x2`;
+export const planShareLink = () => `rome2rio.com/plan/${activeDestinationId()}-k7x2`;
 
 const collaboratorRow = ({ name, role }) => `
   <div class="person" style="padding:8px 0">

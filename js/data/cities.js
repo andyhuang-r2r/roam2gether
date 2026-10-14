@@ -31,6 +31,24 @@ export const CITIES = [
 
 export const DEFAULT_REGION = 'AU';
 
+/**
+ * Fares differ by departure city, not just by region: a multiplier on the region's typical fare
+ * (hubs with more competition are cheaper, remote or small airports cost more).
+ */
+const PRICE_FACTOR = {
+  MEL: 1, SYD: 0.95, BNE: 1.04, PER: 1.12, ADL: 1.07, AKL: 1.15,
+  LHR: 1, MAN: 1.08, DUB: 1.05, CDG: 0.94, BER: 1.1, AMS: 0.97,
+  JFK: 1, LAX: 1.09, YYZ: 0.93, ORD: 1.04,
+  SIN: 1, HND: 1.16, HKG: 0.92, BKK: 0.85, KUL: 0.89, DXB: 1.06,
+};
+
+/** Fare multiplier for a free-text departure ("Sydney (SYD)"). Unknown → 1. */
+export const priceFactorOf = (text) => {
+  const lower = (text || '').toLowerCase();
+  const match = CITIES.find((city) => lower.startsWith(city.name.toLowerCase()));
+  return match ? (PRICE_FACTOR[match.code] ?? 1) : 1;
+};
+
 export const CURRENCY_SYMBOL = { AU: 'A$', EU: '€', NA: 'US$', AS: 'US$' };
 
 /** Region for a free-text departure ("Melbourne (MEL)"). Unknown text → AU. */

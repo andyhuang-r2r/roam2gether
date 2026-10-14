@@ -17,6 +17,7 @@
  *              addedBy, votes: string[], details? }.
  */
 import { state } from '../state/store.js';
+import { COUSIN_TEAMMATES } from '../data/cousins.js';
 import { clamp, createRng, seedFromString } from '../lib/utils.js';
 import { parseIso } from '../lib/dates.js';
 import { cityName, regionOf } from '../data/cities.js';
@@ -37,9 +38,21 @@ export const currentUserName = () => state.user?.name || TRIP_LEAD_NAME;
 /** A price alert is on as soon as one notification channel is chosen. */
 export const isAlertOn = (plan) => plan.priceAlert.channels.length > 0;
 
-export const currentDestination = () => getDestination(state.planDestinationId);
+/* ---------- which trip is the planner showing? ---------- */
 
-export const currentPlan = () => state.plans[state.planDestinationId];
+export const isCousins = () => state.activeTrip === 'cousins';
+/** The trip being planned: the main one, or the cousins trip. */
+export const activeTrip = () => (isCousins() ? state.cousins.trip : state.trip);
+export const activeDestinationId = () => (isCousins() ? (state.cousins.destinationId ?? 'tbd') : state.planDestinationId);
+/** Plans are stored per destination; the cousins trip gets its own keys so the two never collide. */
+export const planKey = (destinationId) => (isCousins() ? `cousins-${destinationId}` : destinationId);
+export const tripTravellers = () => (isCousins() ? state.cousins.trip.adults : state.trip.adults + state.lateArrivals.length);
+/** People who "join" the live plan. */
+export const simulatedTeammates = () => (isCousins() ? COUSIN_TEAMMATES : ['Jordan', 'Priya', 'Theo']);
+
+export const currentDestination = () => getDestination(activeDestinationId());
+
+export const currentPlan = () => state.plans[planKey(activeDestinationId())];
 
 /* ---------- creating a plan ---------- */
 
@@ -62,11 +75,25 @@ export const logActivity = (plan, who, text) => {
 /** A starter price-alert threshold: 10% under the typical fare. */
 const defaultAlertThreshold = (destination, trip) => {
   const region = regionOf(getOrigins(trip)[0]);
-  return Math.round((flightPrice(destination, region) * 0.9) / 10) * 10;
+  return Math.round((flightPrice(destination, region, getOrigins(trip)[0]) * 0.9) / 10) * 10;
 };
 
+/** A plan with no destination yet: the collaborative planner on its own. Everything starts empty. */
+const createTbdPlan = (trip) => ({
+  title: trip.name || 'Our group trip',
+  shortlistedMonths: [],
+  items: { stay: [], do: [], eat: [], move: [] },
+  priceAlert: { threshold: 1000, channels: [], simulatedDrop: false },
+  itinerary: null,
+  activity: [{ who: TRIP_LEAD_NAME, text: 'started a plan', when: 'just now' }],
+  presence: [],
+  simulationStarted: false,
+  linkSharing: true,
+});
+
 export const createPlan = (destination) => {
-  const { trip } = state;
+  const trip = activeTrip();
+  if (destination.tbd) return createTbdPlan(trip);
   const content = getPlanContent(destination);
   const lockedStart = trip.timing === 'locked' && trip.dates?.start ? parseIso(trip.dates.start) : null;
   return {
@@ -97,10 +124,11 @@ export const createPlan = (destination) => {
  */
 export const ensurePlan = (destination) => {
   if (!state.plans || typeof state.plans !== 'object') state.plans = {};
-  const saved = state.plans[destination.id];
+  const key = planKey(destination.id);
+  const saved = state.plans[key];
   if (!saved) {
-    state.plans[destination.id] = createPlan(destination);
-    return state.plans[destination.id];
+    state.plans[key] = createPlan(destination);
+    return state.plans[key];
   }
   // Fill in anything an older save is missing — in place, so other code
   // holding a reference to the plan keeps seeing the same object.
@@ -129,9 +157,9 @@ export const ensurePlan = (destination) => {
 /* ---------- price tracking ---------- */
 
 /** 12 weeks of plausible fares, ending at the current price. Deterministic per route. */
-export const priceHistory = (destination, region, plan) => {
-  const base = flightPrice(destination, region);
-  const random = createRng(seedFromString(destination.id + region));
+export const priceHistory = (destination, region, plan, origin) => {
+  const base = flightPrice(destination, region, origin);
+  const random = createRng(seedFromString(destination.id + region + (origin ?? '')));
   let price = base * 1.05;
   const history = Array.from({ length: PRICE_HISTORY_WEEKS }, () => {
     price = clamp(price * (1 + (random() - 0.54) * 0.07), base * 0.84, base * 1.2);
@@ -249,4 +277,29 @@ export const buildItinerary = (plan, destination) => {
 
 /** Suggestions for any list section (move is derived from the destination's routes). */
 export const suggestionsFor = (sectionId, destination) =>
-  sectionId === 'move' ? getMoveSuggestions(destination) : getPlanContent(destination)[sectionId];
+  destination.tbd ? [] : sectionId === 'move' ? getMoveSuggestions(destination) : getPlanContent(destination)[sectionId];
+
+/**
+ * Choose (or change) the cousins trip's destination. If they had already started planning with no
+ * destination, that plan comes with them: what they added, the months they shortlisted and the activity log.
+ */
+export const setCousinsDestination = (destinationId, { fresh = false } = {}) => {
+  const { cousins } = state;
+  const tbdKey = 'cousins-tbd';
+  const newKey = `cousins-${destinationId}`;
+  const previous = state.activeTrip;
+  state.activeTrip = 'cousins';
+  cousins.destinationId = destinationId;
+  if (fresh) delete state.plans[newKey];
+  const plan = ensurePlan(getDestination(destinationId));
+  const carried = state.plans[tbdKey];
+  if (carried && newKey !== tbdKey) {
+    const hasItems = Object.values(carried.items).some((list) => list.length);
+    if (hasItems) plan.items = carried.items;
+    plan.shortlistedMonths = carried.shortlistedMonths;
+    plan.activity = [{ who: TRIP_LEAD_NAME, text: `chose ${getDestination(destinationId).name}`, when: 'just now' }, ...carried.activity].slice(0, MAX_ACTIVITY_ENTRIES);
+    delete state.plans[tbdKey];
+  }
+  state.activeTrip = previous;
+  return plan;
+};

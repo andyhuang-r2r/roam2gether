@@ -1,0 +1,47 @@
+name: Deploy roam2gether to Cloud Run
+
+# Every push to main redeploys the prototype to https://roam2gether.cr-prototype.rome2rio.com
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-cloud-run
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write # lets the job authenticate to Google Cloud without a stored key
+
+env:
+  PROJECT_ID: path26-489205
+  REGION: europe-west1
+  SERVICE: roam2gether
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy "$SERVICE" \
+            --project "$PROJECT_ID" \
+            --region "$REGION" \
+            --source . \
+            --ingress internal-and-cloud-load-balancing \
+            --no-invoker-iam-check \
+            --quiet
+
+      - name: Show the live URL
+        run: echo "Deployed → https://${SERVICE}.cr-prototype.rome2rio.com" >> "$GITHUB_STEP_SUMMARY"

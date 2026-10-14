@@ -11,7 +11,7 @@ import { currentUserName, suggestionsFor } from '../../logic/planner.js';
 import { avatarFor } from '../components/avatar.js';
 
 const itemSubtitle = (item) =>
-  [item.area || item.meta || '', item.price ? `${item.price}/night` : '', item.rating ? `★ ${item.rating}` : '']
+  [item.area || item.meta || '', item.priceLabel || (item.price ? `${item.price}/night` : ''), item.rating ? `★ ${item.rating}` : '']
     .filter(Boolean)
     .join(' · ');
 
@@ -34,10 +34,11 @@ const itemCard = (sectionId, item, index) => {
       </div>
       ${item.description ? `<p class="idesc">${esc(item.description)}</p>` : ''}
       ${item.details ? detailLines(item.details) : ''}
+      ${item.manual?.length ? `<div class="xtra open">${item.manual.map((line) => `<span>${esc(line)}</span>`).join('')}</div>` : ''}
       <div class="ift">
         <span class="by">${avatarFor(item.addedBy, 'xs')} added by ${esc(adder)}</span>
         <span style="flex:1"></span>
-        ${bookButton(bookingLabel(sectionId, item), item.name)}
+        ${item.manual ? '' : bookButton(bookingLabel(sectionId, item), item.name)}
         <button class="vote ${hasVoted ? 'on' : ''}" data-action="toggleVote" data-section="${sectionId}" data-index="${index}">♥ ${item.votes.length}</button>
         <button class="x sm" data-action="removeItem" data-section="${sectionId}" data-index="${index}" aria-label="Remove">×</button>
       </div>
@@ -67,17 +68,22 @@ export const listSection = (sectionId, plan, destination) => {
     .filter(({ suggestion }) => !addedNames.includes(suggestion.name));
   return `
     ${sectionPlanBar(sectionId)}
-    <div class="group-head"><span class="group-badge confirmed-badge">✓ On your plan</span></div>
+    <div class="group-head"><span class="group-badge confirmed-badge">✓ On your plan</span>
+      <button class="btn btn-ghost btn-sm manual-add" data-action="openManualAdd" data-section="${sectionId}">+ Add manually</button></div>
     <div class="onplan-box">
       ${
         added.length
           ? `<div class="igrid">${added.map((item, i) => itemCard(sectionId, item, i)).join('')}</div>`
-          : '<div class="empty">Nothing on the plan yet. Add from the suggestions below, or use Plan for me.</div>'
+          : `<div class="empty">${destination.tbd ? 'Nothing on the plan yet. Use Plan for me, or add your first idea manually.' : 'Nothing on the plan yet. Add from the suggestions below, use Plan for me, or add one manually.'}</div>`
       }
     </div>
-    <div class="group-head suggested-head"><span class="group-badge">${aiStar()} Suggested for you</span></div>
+    ${
+      destination.tbd
+        ? ''
+        : `<div class="group-head suggested-head"><span class="group-badge">${aiStar()} Suggested for you</span></div>
     <div class="igrid">
       ${suggestions.map(({ suggestion, index }) => suggestionCard(sectionId, suggestion, index)).join('')}
       ${sectionAd(sectionId, destination)}
-    </div>`;
+    </div>`
+    }`;
 };

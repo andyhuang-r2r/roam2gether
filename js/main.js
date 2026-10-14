@@ -25,6 +25,8 @@ import { loadingView, LOADING_MESSAGES } from './views/loading.js';
 import { resultsView } from './views/results/resultsPage.js';
 import { planView } from './views/plan/planPage.js';
 import { tripsView } from './views/trips.js';
+import { cousinsVoteView } from './views/cousinsVote.js';
+import { cousinVoteState } from './logic/cousinsVote.js';
 import { modalView } from './views/modals.js';
 import { demoNav } from './views/components/demoNav.js';
 
@@ -38,7 +40,7 @@ import { startPlanSimulation } from './actions/planSimulation.js';
 import { getCrew } from './logic/crew.js';
 import { buildContext, rankDestinations } from './logic/scoring.js';
 import { DESTINATIONS, getDestination } from './data/destinations.js';
-import { ensurePlan } from './logic/planner.js';
+import { ensurePlan, isCousins } from './logic/planner.js';
 import { navigate } from './render.js';
 
 /* ---------- screens ---------- */
@@ -48,6 +50,11 @@ const withDemoNav = (view) => () => view() + demoNav();
 
 /** The planner always has a valid destination and plan before it draws. */
 const planScreen = () => {
+  if (isCousins()) {
+    ensurePlan(getDestination(state.cousins.destinationId ?? 'tbd'));
+    return planView();
+  }
+  state.activeTrip = 'maya';
   const fallbackId = rankDestinations(getCrew(), buildContext())[0]?.destination.id ?? DESTINATIONS[0].id;
   const destination = getDestination(state.planDestinationId ?? fallbackId);
   state.planDestinationId = destination.id;
@@ -73,6 +80,7 @@ registerViews({
   results: withDemoNav(resultsView),
   plan: withDemoNav(planScreen),
   trips: withDemoNav(tripsView),
+  cousinsVote: withDemoNav(cousinsVoteView),
 });
 
 registerModalRenderer(modalView);
@@ -131,6 +139,12 @@ registerAfterRender({
   },
   loading: runLoadingScreen,
   plan: startPlanSimulation,
+  cousinsVote: () => {
+    clearTimeout(ui.cousinsVoteTimer);
+    if (!state.cousins.quizDone) return navigate('trips');
+    const { nextEventMs } = cousinVoteState();
+    if (nextEventMs) ui.cousinsVoteTimer = setTimeout(() => state.route === 'cousinsVote' && render(), nextEventMs);
+  },
 });
 
 /* ---------- inputs and keys ---------- */

@@ -11,6 +11,7 @@ import { getCrew } from '../logic/crew.js';
 import { buildContext, rankDestinations } from '../logic/scoring.js';
 import {
   buildItinerary,
+  activeDestinationId,
   currentDestination,
   currentPlan,
   currentUserName,
@@ -21,6 +22,7 @@ import {
   newItemId,
   suggestionsFor,
 } from '../logic/planner.js';
+import { itemFromManualForm } from '../logic/manualItem.js';
 import { alertBannerHtml } from '../views/plan/flightsSection.js';
 import { planShareLink } from '../views/plan/shareModal.js';
 import { commit, copyToClipboard, maskEmail, numberData, toggleInArray } from './shared.js';
@@ -34,6 +36,7 @@ const topDestinationId = () => rankDestinations(getCrew(), buildContext())[0]?.d
 /** Create the plan if needed and show the planner page. */
 const enterPlanner = (destinationId) => {
   const destination = getDestination(destinationId);
+  state.activeTrip = 'maya';
   state.planDestinationId = destination.id;
   ensurePlan(destination);
   Object.assign(ui, {
@@ -57,7 +60,7 @@ const editPlan = (change) => {
 };
 
 /** Ignore timers that fire after the user has left the planner. */
-const stillOnPlanner = (destinationId) => state.route === 'plan' && state.planDestinationId === destinationId;
+const stillOnPlanner = (destinationId) => state.route === 'plan' && activeDestinationId() === destinationId;
 
 const ROME2RIO_URL = 'https://www.rome2rio.com/';
 const openRome2Rio = () => window.open(ROME2RIO_URL, '_blank', 'noopener');
@@ -154,6 +157,28 @@ export const planActions = {
     }
   },
 
+  /* ---------- add a booking by hand ---------- */
+  openManualAdd: (el) => openModal({ type: 'manualAdd', section: el.dataset.section }),
+  saveManualItem(el) {
+    const section = el.dataset.section;
+    const values = {};
+    document.querySelectorAll('.mform [data-key]').forEach((field) => {
+      values[field.dataset.key] = field.value;
+    });
+    if (!values.name?.trim()) {
+      document.querySelector('#mformError')?.removeAttribute('hidden');
+      document.querySelector('#mf-name')?.focus();
+      return;
+    }
+    const item = itemFromManualForm(section, values, currentUserName());
+    const plan = currentPlan();
+    plan.items[section].push({ id: newItemId(section), ...item });
+    logActivity(plan, currentUserName(), `added “${item.name}” manually`);
+    closeModal();
+    commit();
+    showToast('Added to the plan.');
+  },
+
   /* ---------- AI: fill in the details of a pasted place ---------- */
   fillPlaceDetails(el) {
     const section = el?.dataset?.section ?? ui.placeSection;
@@ -164,7 +189,7 @@ export const planActions = {
     ui.placeSection = section;
     ui.placeDraft = { isLoading: true };
     render();
-    const destinationId = state.planDestinationId;
+    const destinationId = activeDestinationId();
     return setTimeout(() => {
       if (!stillOnPlanner(destinationId)) return;
       ui.placeDraft = { place: { ...draftPlaceFromText(pasted), kind: section } };
@@ -208,6 +233,7 @@ export const planActions = {
   buildItinerary() {
     const plan = currentPlan();
     const destination = currentDestination();
+    if (destination.tbd) return;
     const destinationId = destination.id;
     ui.isBuildingItinerary = true;
     plan.itinerary = null;

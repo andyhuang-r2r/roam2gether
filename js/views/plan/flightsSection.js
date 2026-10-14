@@ -2,7 +2,7 @@ import { state } from '../../state/store.js';
 import { clamp, esc } from '../../lib/utils.js';
 import { cityName, CURRENCY_SYMBOL } from '../../data/cities.js';
 import { AIRPORT_CODES } from '../../data/planContent.js';
-import { isAlertOn, priceHistory } from '../../logic/planner.js';
+import { activeTrip, isAlertOn, priceHistory } from '../../logic/planner.js';
 import { bookButton } from '../../logic/booking.js';
 import { flightPrice, flightsFrom, getOrigins, regionOf } from '../../logic/travel.js';
 
@@ -38,7 +38,7 @@ const priceBadge = (current, history) => {
 
 const fareRow = (origin, destination, plan) => {
   const region = regionOf(origin);
-  const history = priceHistory(destination, region, plan);
+  const history = priceHistory(destination, region, plan, origin);
   const current = history[history.length - 1];
   const symbol = CURRENCY_SYMBOL[region] ?? 'US$';
   const code = AIRPORT_CODES[destination.id] ?? '';
@@ -56,9 +56,9 @@ const fareRow = (origin, destination, plan) => {
 
 /** Banner shown when the first origin's fare is at or under the alert threshold. */
 export const alertBannerHtml = (plan, destination) => {
-  const origin = getOrigins(state.trip)[0];
+  const origin = getOrigins(activeTrip())[0];
   const region = regionOf(origin);
-  const current = priceHistory(destination, region, plan).at(-1);
+  const current = priceHistory(destination, region, plan, origin).at(-1);
   const { threshold } = plan.priceAlert;
   if (!isAlertOn(plan) || current > threshold) return '';
   const symbol = CURRENCY_SYMBOL[region] ?? 'US$';
@@ -68,8 +68,8 @@ export const alertBannerHtml = (plan, destination) => {
 };
 
 /** Slider limits around the usual fare: 60% to 115%, in steps of 10. */
-const sliderRange = (destination, region) => {
-  const base = flightPrice(destination, region);
+const sliderRange = (destination, region, origin) => {
+  const base = flightPrice(destination, region, origin);
   return { min: Math.round((base * 0.6) / 10) * 10, max: Math.round((base * 1.15) / 10) * 10, step: 10 };
 };
 
@@ -82,9 +82,10 @@ const channelButton = (plan, { key, icon, label, detail }) => {
 };
 
 const alertPanel = (plan, destination) => {
-  const region = regionOf(getOrigins(state.trip)[0]);
+  const origin = getOrigins(activeTrip())[0];
+  const region = regionOf(origin);
   const symbol = CURRENCY_SYMBOL[region] ?? 'US$';
-  const { min, max, step } = sliderRange(destination, region);
+  const { min, max, step } = sliderRange(destination, region, origin);
   const threshold = clamp(plan.priceAlert.threshold, min, max);
   const email = state.user?.email || 'your email';
   return `
@@ -108,8 +109,18 @@ const alertPanel = (plan, destination) => {
     </div>`;
 };
 
+/** No destination yet: nothing to price, so invite them to choose one (or take the quiz). */
+const tbdFlights = () => `
+  <div class="tbd-flights">
+    <div><b>✈️ Flights appear once you choose a destination</b>
+      <small>Pick a place to see fares, set a price alert and book. Not sure where? A short quiz helps the group decide.</small></div>
+    <div class="tactions"><button class="btn btn-pink btn-sm" data-action="pickCousinsDestination">Choose a destination</button>
+      <button class="btn btn-ghost btn-sm" data-action="startGeneratedQuiz">✨ Take the quiz</button></div>
+  </div>`;
+
 export const flightsSection = (plan, destination) => {
-  const origins = getOrigins(state.trip);
+  if (destination.tbd) return tbdFlights();
+  const origins = getOrigins(activeTrip());
   return `
     <div id="alertBannerSlot">${alertBannerHtml(plan, destination)}</div>
     <div class="frows">${origins.map((origin) => fareRow(origin, destination, plan)).join('')}</div>

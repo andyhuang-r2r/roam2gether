@@ -1,0 +1,6 @@
+.git
+.github
+_to_delete
+node_modules
+README.md
+*.zip

@@ -1,11 +1,12 @@
 import { state, ui } from '../../state/store.js';
+import { activeDestinationId, planKey } from '../../logic/planner.js';
 
 const HIDDEN_ON = ['quiz', 'loading'];
 
 /** Plan page only: pretend a fare dropped to show off the price alert. */
 const priceDropButton = () => {
   if (state.route !== 'plan') return '';
-  const hasDropped = state.plans?.[state.planDestinationId]?.priceAlert?.simulatedDrop;
+  const hasDropped = state.plans?.[planKey(activeDestinationId())]?.priceAlert?.simulatedDrop;
   return `<button data-action="toggleSimulatedDrop">${hasDropped ? '↺ Reset flight price' : '📉 Simulate a flight price drop'}</button>`;
 };
 

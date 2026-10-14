@@ -3,7 +3,7 @@
  * and the planner. Every lookup falls back to a sensible default so a
  * missing or odd departure city can never crash a screen.
  */
-import { DEFAULT_REGION, regionOf } from '../data/cities.js';
+import { DEFAULT_REGION, priceFactorOf, regionOf } from '../data/cities.js';
 
 export const DEFAULT_ORIGIN = 'Melbourne (MEL)';
 
@@ -19,8 +19,10 @@ export const getOrigins = (trip) => {
  */
 export const flightsFrom = (destination, region) => destination.flights[region] ?? destination.flights[DEFAULT_REGION];
 
-/** Flight price as a number ("1,580" → 1580). */
-export const flightPrice = (destination, region) =>
-  Number(String(flightsFrom(destination, region).price).replace(/,/g, '')) || 0;
+/** Flight price as a number ("1,580" → 1580). Pass the departure city to get that city's fare, not just the region's. */
+export const flightPrice = (destination, region, origin) => {
+  const base = Number(String(flightsFrom(destination, region).price).replace(/,/g, '')) || 0;
+  return origin ? Math.round((base * priceFactorOf(origin)) / 5) * 5 : base;
+};
 
 export { regionOf };

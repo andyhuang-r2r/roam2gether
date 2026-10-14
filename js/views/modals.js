@@ -8,14 +8,15 @@ import { state } from '../state/store.js';
 import { esc } from '../lib/utils.js';
 import { transportIcon, TRANSPORT_COLORS } from '../lib/icons.js';
 import { cityName, CURRENCY_SYMBOL } from '../data/cities.js';
-import { getDestination } from '../data/destinations.js';
+import { DESTINATIONS, getDestination } from '../data/destinations.js';
 import { getCrew, answeredCrew } from '../logic/crew.js';
 import { average } from '../lib/utils.js';
 import { buildContext, individualMatchPercent, rankDestinations, tipForWinningOver } from '../logic/scoring.js';
-import { flightsFrom, getOrigins, regionOf } from '../logic/travel.js';
+import { flightPrice, flightsFrom, getOrigins, regionOf } from '../logic/travel.js';
 import { renderScene } from '../scenes/index.js';
 import { avatar } from './components/avatar.js';
 import { sheet } from './components/sheet.js';
+import { MANUAL_FORMS } from '../data/manualBooking.js';
 import { loginModal } from './plan/loginModal.js';
 import { shareModal } from './plan/shareModal.js';
 import { appDownloadModal } from './plan/appDownloadModal.js';
@@ -116,7 +117,7 @@ const routesModal = ({ destinationId, originIndex = 0 }) => {
       <span class="eyebrow">Mock routes</span>
       <h2 style="font-size:28px;margin:6px 0 14px">Getting to ${esc(destination.name)}</h2>
       ${originPicker}
-      ${routeLeg('plane', `Fly ${cityName(origin)} → ${shortName}`, flight.stops, hoursLabel(flight.hours), `from ${CURRENCY_SYMBOL[region]}${flight.price}`)}
+      ${routeLeg('plane', `Fly ${cityName(origin)} → ${shortName}`, flight.stops, hoursLabel(flight.hours), `from ${CURRENCY_SYMBOL[region]}${flightPrice(destination, region, origin).toLocaleString('en-US')}`)}
       <h4 style="margin:18px 0 10px">Getting around</h4>
       ${destination.localRoutes.map((r) => routeLeg(r.mode, r.title, r.duration, r.price)).join('')}
       <h4 style="margin:18px 0 10px">Where to stay</h4>
@@ -161,6 +162,49 @@ const compareModal = ({ destinationId }) => {
     <button class="btn btn-pink btn-block" style="margin-top:12px" data-action="openRoutes" data-value="${destination.id}">Explore routes</button>`);
 };
 
+/* ---------- pick a destination for your own trip ---------- */
+
+const pickDestinationModal = () =>
+  sheet(`
+    <h2>Where are you headed?</h2>
+    <p class="muted" style="margin-bottom:14px">Pick a place and we’ll open a plan for it.</p>
+    <div class="guide-card">
+      <div><b>Not sure yet?</b><small>Take a two-minute quiz and we’ll help the group decide.</small></div>
+      <button class="btn btn-pink btn-sm" data-action="startGeneratedQuiz">✨ Take the quiz</button>
+    </div>
+    <div class="pick-list">
+      ${DESTINATIONS.map(
+        (d) => `
+        <button class="opt" data-action="chooseCousinsDestination" data-value="${d.id}">
+          <span class="th">${renderScene(d.scene, d.sceneVariant)}</span>
+          <span style="flex:1"><b style="font-family:Inter">${esc(d.name)}</b><div class="muted" style="font-size:13px">${esc(d.country)}</div></span>
+          <span>→</span>
+        </button>`,
+      ).join('')}
+    </div>`);
+
+/* ---------- add a booking by hand ---------- */
+
+const manualField = (field) => {
+  const id = `mf-${field.key}`;
+  const required = field.required ? ' required' : '';
+  let control;
+  if (field.type === 'select') control = `<select class="input" id="${id}" data-key="${field.key}">${field.options.map((o) => `<option>${esc(o)}</option>`).join('')}</select>`;
+  else if (field.type === 'textarea') control = `<textarea class="input" id="${id}" data-key="${field.key}" rows="3" placeholder="${esc(field.placeholder ?? '')}"></textarea>`;
+  else control = `<input class="input" id="${id}" data-key="${field.key}" type="${field.type}"${field.type === 'number' ? ' min="0" step="any" inputmode="decimal"' : ''} placeholder="${esc(field.placeholder ?? '')}"${required} autocomplete="off">`;
+  return `<label class="mfield ${field.half ? 'half' : ''}" for="${id}"><span>${esc(field.label)}${field.required ? ' *' : ''}</span>${control}</label>`;
+};
+
+const manualAddModal = ({ section }) => {
+  const form = MANUAL_FORMS[section];
+  return sheet(`
+    <h2>${form.heading}</h2>
+    <p class="muted" style="margin-bottom:14px">${form.intro}</p>
+    <div class="mform" data-section="${section}">${form.fields.map(manualField).join('')}</div>
+    <p class="mform-error" id="mformError" hidden>Add a title first.</p>
+    <button class="btn btn-pink btn-block" data-action="saveManualItem" data-section="${section}">Add to the plan</button>`);
+};
+
 /* ---------- dispatcher ---------- */
 
 const MODALS = {
@@ -173,6 +217,8 @@ const MODALS = {
   login: loginModal,
   share: shareModal,
   appDownload: appDownloadModal,
+  pickDestination: pickDestinationModal,
+  manualAdd: manualAddModal,
 };
 
 export const modalView = (modal) => MODALS[modal.type]?.(modal) ?? '';

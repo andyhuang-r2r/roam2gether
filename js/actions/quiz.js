@@ -1,11 +1,29 @@
 /** The participant journey: ten dilemmas, then the follow-up questions. */
 import { state, ui, saveState } from '../state/store.js';
 import { setByPath } from '../lib/utils.js';
-import { navigate } from '../render.js';
+import { closeModal, navigate } from '../render.js';
 import { QUESTION_COUNT, QUIZ_QUESTIONS } from '../data/quiz.js';
 import { generateQuiz } from '../data/quizVariants.js';
 import { getFollowUpSteps } from '../logic/followUps.js';
+import { deepClone } from '../lib/utils.js';
 import { commit, numberData } from './shared.js';
+
+/** The cousins quiz is done: open voting. The cousins' votes arrive over the next ~30s. */
+const completeCousinsQuiz = () => {
+  const { cousins, me } = state;
+  const answers = me.answers.slice(0, 10);
+  // a retake: anything already planned for an earlier result becomes the open (TBD) plan again
+  if (cousins.destinationId) {
+    const old = `cousins-${cousins.destinationId}`;
+    if (state.plans[old] && !state.plans['cousins-tbd']) state.plans['cousins-tbd'] = state.plans[old];
+    delete state.plans[old];
+    cousins.destinationId = null;
+  }
+  Object.assign(cousins, { quizDone: true, answers, votingStartedAt: Date.now(), vote: null, resultSeen: false });
+  if (cousins.meBackup) state.me = cousins.meBackup;
+  Object.assign(cousins, { takingQuiz: false, meBackup: null });
+  state.role = 'lead';
+};
 
 const ANSWER_ANIMATION_MS = 480;
 const FOLLOW_UP_ADVANCE_MS = 320;
@@ -44,7 +62,12 @@ export const quizActions = {
       if (state.me.questionIndex < QUESTION_COUNT - 1) {
         state.me.questionIndex += 1;
         commit();
-      } else navigate('mini');
+      } else {
+        if (state.cousins.takingQuiz) {
+          completeCousinsQuiz();
+          navigate('cousinsVote');
+        } else navigate('mini');
+      }
     }, ANSWER_ANIMATION_MS);
   },
   previousQuestion() {
@@ -62,11 +85,23 @@ export const quizActions = {
     el.disabled = true;
     setTimeout(() => {
       ui.generatingQuiz = false;
+      closeModal(); // it may have been started from the destination picker
       state.role = 'participant';
+      // The cousins quiz is separate from the main trip: set the main trip's answers aside and put them back after.
+      if (!state.cousins.takingQuiz) state.cousins.meBackup = deepClone(state.me);
+      state.cousins.takingQuiz = true;
       Object.assign(state.me, { questionIndex: 0, answers: [], done: false });
       state.me.generatedQuiz = generateQuiz(QUIZ_QUESTIONS, state.me.generatedQuiz);
       navigate('join');
     }, 1300);
+  },
+  /** Leave the cousins quiz: put the main trip's answers back and return to the dashboard. */
+  finishCousinsQuiz() {
+    const { cousins } = state;
+    if (cousins.meBackup) state.me = cousins.meBackup;
+    Object.assign(cousins, { takingQuiz: false, meBackup: null });
+    state.role = 'lead';
+    navigate('trips');
   },
   redoQuiz() {
     if (state.me.generatedQuiz) state.me.generatedQuiz = generateQuiz(QUIZ_QUESTIONS, state.me.generatedQuiz);

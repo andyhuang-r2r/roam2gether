@@ -487,4 +487,19 @@ export const DESTINATIONS = [
   },
 ];
 
-export const getDestination = (id) => DESTINATIONS.find((d) => d.id === id) ?? DESTINATIONS[0];
+/**
+ * A stand-in for "we haven't picked a place yet". It borrows a real destination's shape so every
+ * view has something to read, and carries `tbd: true` so they can show a "choose a destination" state instead.
+ */
+export const TBD_DESTINATION = {
+  ...DESTINATIONS[0],
+  id: 'tbd',
+  name: 'Destination TBD',
+  country: 'Anywhere',
+  scene: 'one',
+  sceneVariant: undefined,
+  tbd: true,
+};
+
+export const getDestination = (id) =>
+  id === 'tbd' ? TBD_DESTINATION : (DESTINATIONS.find((d) => d.id === id) ?? DESTINATIONS[0]);

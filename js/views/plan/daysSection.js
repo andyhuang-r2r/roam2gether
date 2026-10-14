@@ -8,8 +8,12 @@ const slotColor = (slot) =>
     ? (TRANSPORT_COLORS[slot.mode] ?? TRANSPORT_COLORS.train)
     : (SLOT_COLORS[slot.kind] ?? '#1F1E1E');
 
-const emptyState = () =>
-  ui.isBuildingItinerary
+const emptyState = (destination) =>
+  destination.tbd
+    ? `<div class="empty big"><b>Choose a destination to build your days.</b>
+        <p class="muted" style="max-width:460px;margin:6px auto 16px">Once you know where you’re going, roam2gether turns what you’ve added into a day-by-day plan.</p>
+        <button class="btn btn-pink" data-action="pickCousinsDestination">Choose a destination</button></div>`
+    : ui.isBuildingItinerary
     ? `<div class="empty big"><div class="shimmer"></div><b>roam2gether is stitching your days together…</b>
         <p class="muted">Balancing slow mornings, late nights and one very long lunch.</p></div>`
     : `<div class="empty big"><b>Turn your ideas into a plan.</b>
@@ -34,8 +38,8 @@ const dayCard = (day, dayIndex) => `
     ${day.slots.map((slot, slotIndex) => slotRow(slot, dayIndex, slotIndex)).join('')}
   </div>`;
 
-export const daysSection = (plan) => {
-  if (!plan.itinerary) return emptyState();
+export const daysSection = (plan, destination) => {
+  if (!plan.itinerary) return emptyState(destination);
   const { days, bookings } = plan.itinerary;
   const addedCount = plan.items.do.length + plan.items.eat.length;
   return `

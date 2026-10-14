@@ -8,7 +8,7 @@
 import { state, saveState } from './state/store.js';
 import { ui } from './state/store.js';
 
-export const ROUTES = ['landing', 'setup', 'invite', 'join', 'quiz', 'mini', 'details', 'loading', 'results', 'plan', 'trips'];
+export const ROUTES = ['landing', 'setup', 'invite', 'join', 'quiz', 'mini', 'details', 'loading', 'results', 'plan', 'trips', 'cousinsVote'];
 
 const views = {}; // route -> () => html
 const afterRenderHooks = {}; // route -> () => void

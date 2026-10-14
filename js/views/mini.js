@@ -21,7 +21,11 @@ export const miniResultView = () => {
         <div class="legend">
           ${archetypes.map((a) => `<div><i style="background:${a.color}"></i>${esc(a.name)}</div>`).join('')}
         </div>
-        <button class="btn btn-pink btn-block" data-action="startFollowUps">A few quick details →</button>
+        ${
+          state.cousins.takingQuiz
+            ? '<button class="btn btn-pink btn-block" data-action="finishCousinsQuiz">Back to my trips →</button>'
+            : '<button class="btn btn-pink btn-block" data-action="startFollowUps">A few quick details →</button>'
+        }
         <p style="margin-top:14px"><button class="link muted" data-action="redoQuiz">Change an answer</button></p>
       </div>
     </div>`;

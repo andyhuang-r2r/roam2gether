@@ -8,13 +8,13 @@ const MAX_FLIGHT_HOURS = 26;
 const haulLabel = (hours) => (hours <= 10 ? 'short' : hours <= 16 ? 'medium' : 'long');
 
 /** Voter avatars + the vote button for one candidate. */
-const votePanel = (destination, { voters, isVotedByViewer, isDecided, isWinner }) => `
+const votePanel = (destination, { voters, isVotedByViewer, isDecided, isWinner, voteAction = 'castVote' }) => `
   <div class="votebar ${isWinner ? 'won' : ''}">
     <div class="voters">
       ${voters.map((p) => avatar(p, 'xs')).join('')}
       <b style="font-family:Inter;margin-left:6px">${voters.length} ${voters.length === 1 ? 'vote' : 'votes'}</b>
     </div>
-    ${isDecided ? '' : `<button class="btn ${isVotedByViewer ? 'btn-ink' : 'btn-pink'} btn-sm" data-action="castVote" data-value="${destination.id}">Vote for this</button>`}
+    ${isDecided ? '' : `<button class="btn ${isVotedByViewer ? 'btn-ink' : 'btn-pink'} btn-sm" data-action="${voteAction}" data-value="${destination.id}">Vote for this</button>`}
   </div>`;
 
 /**
@@ -44,11 +44,11 @@ export const destinationCard = ({ destination, percent, hours }, rank, { voting 
       <div class="chips">${destination.whyItWorks.map((tag) => `<span class="tag pink">${esc(tag)}</span>`).join('')}</div>
       <div class="watch"><b>Watch out:</b> ${esc(destination.watchOut)}</div>
     </div>
-    <div class="acts">
+    ${voting.actsHtml ?? `<div class="acts">
       <button class="btn btn-pink" data-action="openRoutes" data-value="${destination.id}">Explore routes</button>
       <button class="btn btn-ghost" data-action="openCompare" data-value="${destination.id}">Compare with the group</button>
       <button class="btn btn-ink" data-action="planTrip" data-value="${destination.id}">Plan your trip →</button>
-    </div>
+    </div>`}
   </article>`;
 
 /** Compact "more ideas" row. */

@@ -5,14 +5,15 @@
  * the flight prices), the "paste a place" bar, then every section stacked in order.
  * Activity slides in from the right.
  */
-import { state, ui } from '../../state/store.js';
+import { ui } from '../../state/store.js';
 import { esc } from '../../lib/utils.js';
 import { PLAN_SECTIONS, LIST_SECTIONS } from '../../data/planSections.js';
 import { renderScene } from '../../scenes/index.js';
 import { aiStar, transportIcon, TRANSPORT_COLORS } from '../../lib/icons.js';
 import { describeTiming } from '../../logic/tripSummary.js';
-import { crewSize, getCrew } from '../../logic/crew.js';
-import { currentDestination, currentPlan, currentUserName } from '../../logic/planner.js';
+import { getCrew } from '../../logic/crew.js';
+import { COUSIN_CREW } from '../../data/cousins.js';
+import { activeTrip, currentDestination, currentPlan, currentUserName, isCousins, planKey, tripTravellers } from '../../logic/planner.js';
 import { header } from '../components/header.js';
 import { avatarFor, presenceAvatar } from '../components/avatar.js';
 import { listSection } from './listSection.js';
@@ -26,7 +27,7 @@ import { sectionAd } from './ads.js';
 /** Everyone on the plan; a ring marks the people who are active right now. */
 const collaboratorAvatars = (plan) => {
   const me = currentUserName();
-  const teammates = getCrew()
+  const teammates = (isCousins() ? COUSIN_CREW : getCrew())
     .filter((p) => !p.isLead && p.name !== me)
     .map((p) => p.name);
   const activeNames = new Set(plan.presence.map((p) => p.who));
@@ -46,7 +47,11 @@ const tripCard = (plan, destination) => {
       <div class="trip-hero">
         <div class="trip-scene">${renderScene(destination.scene, destination.sceneVariant)}<div class="trip-shade"></div></div>
         <div class="trip-top">
-          <button class="trip-back" data-action="backToResults">← Back<span class="back-long"> to results</span></button>
+          ${
+            isCousins()
+              ? '<button class="trip-back" data-action="openTrips">← My trips</button>'
+              : '<button class="trip-back" data-action="backToResults">← Back<span class="back-long"> to results</span></button>'
+          }
           <div class="trip-actions">
             <span class="trip-people-wide">${collaboratorAvatars(plan)}</span>
             <button class="btn btn-white btn-sm" data-action="openActivity">Activity <span class="pill">${plan.activity.length}</span></button>
@@ -55,12 +60,12 @@ const tripCard = (plan, destination) => {
         </div>
         <div class="trip-intro">
           <div class="trip-people-narrow">${collaboratorAvatars(plan)}</div>
-          <span class="eyebrow trip-eyebrow">Your trip to ${esc(destination.country)}</span>
-          <input class="titlein" data-bind="plans.${destination.id}.title" value="${esc(plan.title)}" aria-label="Trip name">
+          <span class="eyebrow trip-eyebrow">${destination.tbd ? 'Your trip' : `Your trip to ${esc(destination.country)}`}</span>
+          <input class="titlein" data-bind="plans.${planKey(destination.id)}.title" value="${esc(plan.title)}" aria-label="Trip name">
           <div class="trip-facts">
-            <span class="fact-place">📍 ${esc(destination.name)}</span>
-            <span>🗓️ ${esc(describeTiming(state.trip, { short: true }))}</span>
-            <span>👥 ${crewSize()} travellers</span>
+            <span class="fact-place">📍 ${esc(destination.name)}</span>${destination.tbd ? '<button class="fact-choose" data-action="pickCousinsDestination">Choose</button>' : ''}
+            <span>🗓️ ${esc(describeTiming(activeTrip(), { short: true }))}</span>
+            <span>👥 ${tripTravellers()} travellers</span>
             <span id="savedIndicator" class="saved">✓ All changes saved</span>
           </div>
         </div>
@@ -76,7 +81,7 @@ const AD_AFTER_BODY = ['when'];
 
 const sectionBody = (sectionId, plan, destination) => {
   if (sectionId === 'when') return whenSection(plan, destination);
-  if (sectionId === 'days') return daysSection(plan);
+  if (sectionId === 'days') return daysSection(plan, destination);
   return listSection(sectionId, plan, destination);
 };
 
@@ -93,7 +98,7 @@ const planSection = (section, plan, destination) => {
         <h2>${esc(section.title)}${section.isAi ? ` ${aiStar()}` : ''}</h2>
       </div>
       <div class="pbody">
-        ${sectionBody(section.id, plan, destination)}${AD_AFTER_BODY.includes(section.id) ? sectionAd(section.id, destination, { wide: true }) : ''}
+        ${sectionBody(section.id, plan, destination)}${AD_AFTER_BODY.includes(section.id) && !destination.tbd ? sectionAd(section.id, destination, { wide: true }) : ''}
       </div>
     </section>`;
 };

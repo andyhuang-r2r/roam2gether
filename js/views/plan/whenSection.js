@@ -23,7 +23,23 @@ const monthButton = (month, season, plan, best) => `
     <em>${'$'.repeat(season.priceLevel[month])}<u>${'$'.repeat(3 - season.priceLevel[month])}</u></em>
   </button>`;
 
+const plainMonthButton = (month, plan) => `
+  <button class="mo ${plan.shortlistedMonths.includes(month) ? 'on' : ''}" data-action="togglePlanMonth" data-value="${month}">
+    <b>${MONTHS[month]}</b>
+  </button>`;
+
+/** With no destination yet there's no season data: just let the group shortlist the months that work. */
+const tbdWhen = (plan) => {
+  const shortlisted = plan.shortlistedMonths.length
+    ? `Shortlisted: <b>${plan.shortlistedMonths.map((m) => MONTHS[m]).join(', ')}</b>.`
+    : 'Tap the months that work for the group.';
+  return `
+    <div class="months">${MONTHS.map((_, month) => plainMonthButton(month, plan)).join('')}</div>
+    <div class="muted" style="font-size:13px;margin-top:8px">${shortlisted} Seasons and prices appear once you choose a destination.</div>`;
+};
+
 export const whenSection = (plan, destination) => {
+  if (destination.tbd) return tbdWhen(plan);
   const { trip } = state;
   const season = getSeasonData(destination);
   const best = bestMonths(season);
